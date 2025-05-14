@@ -1,0 +1,33 @@
+```gitignore
+    # Ambiente virtuale Python
+    flask_app_venv/
+    venv/
+    *.pyenv
+    .Python
+    env/
+    ENV/
+
+    # File di database SQLite locale (se usato per sviluppo)
+    instance/
+    *.db
+    *.sqlite3
+
+    # File compilati Python
+    __pycache__/
+    *.py[cod]
+    *$py.class
+
+    # File di configurazione IDE e OS
+    .vscode/
+    .idea/
+    *.DS_Store
+    Thumbs.db
+
+    # File di log
+    *.log
+
+    # File di output o build specifici del progetto (se ne avrai)
+    dist/
+    build/
+    *.egg-info/
+    ```
