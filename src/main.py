@@ -1,58 +1,77 @@
 import sys
 import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+# Aggiunge la directory principale del progetto al path per gli import corretti
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 
-# Import blueprints
-from src.routes.auth import auth_bp
+# Importa db e migrate dal nostro file extensions.py
+from .extensions import db, migrate
 
-db = SQLAlchemy()
-migrate = Migrate()
+# Importa i tuoi blueprint (collezioni di rotte)
+from .routes.auth import auth_bp
+
+# Importa i tuoi modelli del database
+# È FONDAMENTALE che questo import sia presente e corretto perché Flask-Migrate
+# possa "vedere" le tue tabelle da creare/modificare.
+from .models.user import User
 
 def create_app():
-    app = Flask(__name__, template_folder=\'templates\', static_folder=\'static\')
-    app.config[\"SECRET_KEY\"] = os.environ.get(\"SECRET_KEY\", \"your_default_fallback_secret_key\") # Usa variabile d\ambiente per la secret key
-    
-    # Configurazione Database: Priorità alla variabile d'ambiente DATABASE_URL (per Render)
-    # Altrimenti, fallback a SQLite per sviluppo locale se DATABASE_URL non è impostata.
-    database_url = os.environ.get(\"DATABASE_URL\")
+    """Factory function per creare e configurare l'istanza dell'app Flask."""
+    app = Flask(__name__,
+                template_folder='../templates',
+                static_folder='../static/')
+
+    # Configurazione dell'applicazione
+    # Carica la SECRET_KEY da una variabile d'ambiente, con un fallback per lo sviluppo.
+    # NON USARE "your_default_fallback_secret_key" IN PRODUZIONE!
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "a_very_secure_default_secret_key_for_dev_only")
+
+    # Configurazione del Database
+    # Priorità alla variabile d'ambiente DATABASE_URL (usata da piattaforme come Render, Supabase).
+    # Se non presente, usa un database SQLite locale per facilitare lo sviluppo.
+    database_url = os.environ.get("DATABASE_URL")
+
     if database_url:
-        # Sostituisci 'postgres://' con 'postgresql://' se Render fornisce l'URL in quel formato
-        if database_url.startswith(\"postgres://\"):
-            database_url = database_url.replace(\"postgres://\", \"postgresql://\", 1)
-        app.config[\"SQLALCHEMY_DATABASE_URI\"] = database_url
+        # Alcune piattaforme (come le versioni più vecchie di Heroku o a volte Render)
+        # potrebbero fornire URL che iniziano con "postgres://" invece di "postgresql://".
+        # SQLAlchemy richiede "postgresql://".
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     else:
-        # Fallback a SQLite per sviluppo locale
-        local_db_path = os.path.join(app.instance_path, \"app.db\")
-        app.config[\"SQLALCHEMY_DATABASE_URI\"] = f\"sqlite:///{local_db_path}\"
-        # Crea la cartella instance se non esiste per SQLite locale
-        if not os.path.exists(app.instance_path):
-            os.makedirs(app.instance_path)
-            
-    app.config[\"SQLALCHEMY_TRACK_MODIFICATIONS\"] = False
+        # Configurazione per un database SQLite locale se DATABASE_URL non è impostata.
+        # Il database verrà creato nella cartella 'instance' del tuo progetto.
+        # La cartella 'instance' è il posto raccomandato da Flask per file che non dovrebbero
+        # essere committati nel version control, come i database di sviluppo.
+        instance_folder_path = app.instance_path
+        local_db_file_path = os.path.join(instance_folder_path, "app.db")
+        app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{local_db_file_path}"
 
-    # Inizializza le estensioni
+        # Crea la cartella 'instance' se non esiste già.
+        try:
+            os.makedirs(instance_folder_path)
+        except OSError:
+            # La cartella esiste già o c'è stato un altro errore nel crearla.
+            # Se esiste già, va bene.
+            if not os.path.isdir(instance_folder_path):
+                raise # Solleva l'eccezione se non è una directory e la creazione è fallita
+
+    # Disabilita una funzionalità di Flask-SQLAlchemy che non usiamo e che consuma risorse.
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    # Inizializza le estensioni Flask (db per SQLAlchemy, migrate per Alembic) con l'app.
+    # Questo deve avvenire DOPO che app.config è stata impostata, specialmente SQLALCHEMY_DATABASE_URI.
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db) # Passa sia l'app che l'istanza db a Flask-Migrate
 
-    # Registra i blueprint
-    app.register_blueprint(auth_bp)
-    
-    # Importa i modelli qui per assicurarti che siano registrati con SQLAlchemy
-    # prima di creare le tabelle o eseguire le migrazioni.
-    with app.app_context():
-        from src.models import user 
+    # Registra i Blueprint (collezioni di rotte) con l'applicazione.
+    # auth_bp gestirà le rotte come /auth/login, /auth/register, ecc.
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    # Qui potresti registrare altri blueprint se ne avessi
+    # app.register_blueprint(altro_bp, url_prefix='/altro')
 
     return app
 
-app = create_app()
-
-if __name__ == \"__main__\":
-    # Per lo sviluppo locale, puoi specificare host e porta.
-    # Per il deploy su Render, Render gestirà il binding a host/porta appropriati.
-    port = int(os.environ.get(\"PORT\", 5000)) # Render imposta la variabile PORT
-    app.run(host=\"0.0.0.0\", port=port, debug=False) # Debug=False per produzione
