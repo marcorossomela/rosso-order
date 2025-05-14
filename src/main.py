@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from src.extensions import db, migrate
 # Import blueprints
 from src.routes.auth import auth_bp
 
@@ -18,6 +18,7 @@ def create_app():
         __name__,
         template_folder='templates'
         )
+    
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your_default_fallback_secret_key") #Usa variabile d'ambiente per la secret key
     
     # Configurazione Database: Priorità alla variabile d'ambiente DATABASE_URL (per Render)ls -l migra

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from src.models.user import User  # Importa il modello User
-from src.main import db  # Importa db per le sessioni del database
+from src.extensions import db
 
 auth_bp = Blueprint(
     "auth_bp", __name__, template_folder="../templates", static_folder="../static"
@@ -8,6 +8,7 @@ auth_bp = Blueprint(
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    from src.main import db  # Importa db per le sessioni del database
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
