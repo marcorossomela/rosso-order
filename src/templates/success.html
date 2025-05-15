@@ -1,27 +1,12 @@
-{% extends "base.html" %}
-
-{% block title %}Login Successful - Rossopomodoro Order{% endblock %}
-
-{% block content %}
-<div class="form-header">
-    <h1><span role="img" aria-label="Tick icon">✅</span> Login Successful!</h1>
-</div>
-
-<h2>Welcome, {{ session.get("username", "User") }}!</h2>
-
-<p>You have successfully logged into the Rossopomodoro Order application.</p>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul class="flash-messages">
-    {% for category, message in messages %}
-      <li class="{{ category }}">{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-<div class="extra-links">
-    <p><a href="{{ url_for(\'auth_bp.logout\') }}">Logout</a></p>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Benvenuto</title>
+</head>
+<body>
+    <h1>Accesso effettuato con successo!</h1>
+    <p>Sei loggato come utente ID: {{ session['user_id'] }}</p>
+    <a href="{{ url_for('auth_bp.logout') }}">Logout</a>
+</body>
+</html>

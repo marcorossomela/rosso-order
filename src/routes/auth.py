@@ -1,76 +1,78 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from src.models.user import User  # Importa il modello User
+from werkzeug.security import generate_password_hash, check_password_hash
+from src.models.user import User
 from src.extensions import db
 
-auth_bp = Blueprint(
-    "auth_bp", __name__, template_folder="../templates", static_folder="../static"
-)
+auth_bp = Blueprint('auth_bp', __name__)
 
-@auth_bp.route("/login", methods=["GET", "POST"])
-def login():
-    from src.extensions import db  # Importa db per le sessioni del database
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        
-        user = User.query.filter_by(username=username).first()
-        
-        if user and user.check_password(password):
-            session["logged_in"] = True
-            session["username"] = user.username # Opzionale: salva username in sessione
-            flash("Login successful!", "success")
-            return redirect(url_for("auth_bp.success"))
-        else:
-            flash("Invalid credentials. Please try again.", "danger")
-            # Per debug, non usare in produzione:
-            # if not user:
-            #     flash(f"User {username} not found.", "warning")
-            # elif not user.check_password(password):
-            #     flash(f"Password for user {username} incorrect.", "warning")
-                
-    return render_template("login.html")
-
-@auth_bp.route("/success")
-def success():
-    if not session.get("logged_in"):
-        flash("Please log in to access this page.", "info")
-        return redirect(url_for("auth_bp.login"))
-    return render_template("success.html")
-
-@auth_bp.route("/logout")
-def logout():
-    session.pop("logged_in", None)
-    session.pop("username", None) # Rimuovi username dalla sessione
-    flash("You have been logged out.", "info")
-    return redirect(url_for("auth_bp.login"))
-
-@auth_bp.route("/")
+# Homepage
+@auth_bp.route('/')
 def index():
-    return redirect(url_for("auth_bp.login"))
+    return render_template('index.html')
 
-# Potresti aggiungere una route per registrare un utente, ad esempio:
-@auth_bp.route("/register", methods=["GET", "POST"])
+# Registrazione
+@auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            flash("Username already exists. Please choose a different one.", "warning")
-            return render_template("register.html")
-        
-        new_user = User(username=username)
-        new_user.set_password(password) # Hash della password
-        
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            flash("Registration successful! Please log in.", "success")
-            return redirect(url_for("auth_bp.login"))
-        except Exception as e:
-            db.session.rollback()
-            flash(f"An error occurred during registration: {e}", "danger")
-            
-    return render_template("register.html") # Dovrai creare register.html
+    if 'user_id' in session:
+        return redirect(url_for('auth_bp.success'))
 
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not email or not password:
+            flash('Email e password sono obbligatori.', 'warning')
+            return redirect(url_for('auth_bp.register'))
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('Email già registrata. Prova con un’altra.', 'danger')
+            return redirect(url_for('auth_bp.register'))
+
+        new_user = User(email=email)
+        new_user.set_password(password)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        session['user_id'] = new_user.id
+        flash('Registrazione completata con successo!', 'success')
+        return redirect(url_for('auth_bp.success'))
+
+    return render_template('register.html')
+
+# Login
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if 'user_id' in session:
+        return redirect(url_for('auth_bp.success'))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id
+            flash('Accesso effettuato.', 'success')
+            return redirect(url_for('auth_bp.success'))
+        else:
+            flash('Email o password errati.', 'danger')
+            return redirect(url_for('auth_bp.login'))
+
+    return render_template('login.html')
+
+# Logout
+@auth_bp.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash('Logout effettuato.', 'success')
+    return redirect(url_for('auth_bp.login'))
+
+# Pagina protetta post-login
+@auth_bp.route('/success')
+def success():
+    if 'user_id' not in session:
+        flash('Devi effettuare il login per accedere.', 'warning')
+        return redirect(url_for('auth_bp.login'))
+    return render_template('success.html')
