@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from src.models.user import User  # Importa il modello User
-from src ..extensions import db
+from src.extensions import db
 
 auth_bp = Blueprint(
     "auth_bp", __name__, template_folder="../templates", static_folder="../static"
