@@ -8,7 +8,7 @@ auth_bp = Blueprint(
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    from src.main import db  # Importa db per le sessioni del database
+    from src.extensions import db  # Importa db per le sessioni del database
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
