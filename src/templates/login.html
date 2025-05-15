@@ -19,7 +19,8 @@
   {% endif %}
 {% endwith %}
 
-<form method="post" action="{{ url_for(\'auth_bp.login\') }}">
+<form method="post" 
+    action="{{ url_for('auth_bp.login') }}">
     <div>
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required>
