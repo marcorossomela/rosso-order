@@ -16,7 +16,7 @@ migrate = Migrate()
 def create_app():
     app = Flask(
         __name__,
-        template_folder='templates'
+        template_folder='../templates'
         )
     
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your_default_fallback_secret_key") #Usa variabile d'ambiente per la secret key
