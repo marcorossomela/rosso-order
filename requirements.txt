@@ -4,3 +4,4 @@ flask_migrate
 psycopg2-binary
 python-dotenv
 werkzeug
+gunicorn
