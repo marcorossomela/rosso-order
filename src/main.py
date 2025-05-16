@@ -8,7 +8,7 @@ from src.extensions import db, migrate
 from src.routes.auth import auth_bp
 
 def create_app():
-    app = Flask(__name__, template_folder='../templates', static_folder='../static')
+    app = Flask(__name__, template_folder='templates', static_folder='static')
 
     # Secret key per sessioni e sicurezza
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your_default_fallback_secret_key")
