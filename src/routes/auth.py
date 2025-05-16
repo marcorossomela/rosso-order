@@ -8,7 +8,7 @@ auth_bp = Blueprint('auth_bp', __name__)
 # Homepage
 @auth_bp.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('/index.html')
 
 # Registrazione
 @auth_bp.route('/register', methods=['GET', 'POST'])
