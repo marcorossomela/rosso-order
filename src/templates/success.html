@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>Benvenuto</title>
-</head>
-<body>
-    <h1>Accesso effettuato con successo!</h1>
-    <p>Sei loggato come utente ID: {{ session['user_id'] }}</p>
-    <a href="{{ url_for('auth_bp.logout') }}">Logout</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Registrazione completata{% endblock %}
+
+{% block content %}
+  <div class="form-header">
+    <h1>Registrazione completata</h1>
+  </div>
+  <p>Benvenuto! Il tuo account è stato creato con successo.</p>
+  <div class="extra-links">
+    <p><a href="{{ url_for('auth_bp.login') }}">Accedi ora</a></p>
+  </div>
+{% endblock %}
