@@ -1,19 +1,27 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from src.models.user import User
+from src.models.supplier import Supplier
 from src.extensions import db
 
 auth_bp = Blueprint('auth_bp', __name__)
+login_manager = LoginManager()
+login_manager.login_view = 'auth_bp.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Homepage
 @auth_bp.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('auth_bp.login'))
 
 # Registrazione
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if 'user_id' in session:
+    if current_user.is_authenticated:
         return redirect(url_for('auth_bp.dashboard'))
 
     if request.method == 'POST':
@@ -35,16 +43,16 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        session['user_id'] = new_user.id
+        login_user(new_user)
         flash('Registrazione completata con successo!', 'success')
-        return redirect(url_for('auth_bp.success'))
+        return redirect(url_for('auth_bp.dashboard'))
 
     return render_template('register.html')
 
 # Login
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if 'user_id' in session:
+    if current_user.is_authenticated:
         return redirect(url_for('auth_bp.dashboard'))
 
     if request.method == 'POST':
@@ -54,7 +62,7 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password_hash, password):
-            session['user_id'] = user.id
+            login_user(user)
             flash('Login effettuato con successo!', 'success')
             return redirect(url_for('auth_bp.dashboard'))
         else:
@@ -65,23 +73,15 @@ def login():
 
 # Logout
 @auth_bp.route('/logout')
+@login_required
 def logout():
-    session.pop('user_id', None)
+    logout_user()
     flash('Logout effettuato.', 'success')
     return redirect(url_for('auth_bp.login'))
 
-# Pagina success post-registrazione
-@auth_bp.route('/success')
-def success():
-    if 'user_id' not in session:
-        flash('Devi effettuare il login per accedere.', 'warning')
-        return redirect(url_for('auth_bp.login'))
-    return render_template('success.html')
-
 # Dashboard protetta
 @auth_bp.route('/dashboard')
+@login_required
 def dashboard():
-    if 'user_id' not in session:
-        flash('Devi effettuare il login per accedere alla dashboard.', 'warning')
-        return redirect(url_for('auth_bp.login'))
-    return render_template('dashboard.html')
+    suppliers = Supplier.query.all()
+    return render_template('dashboard.html', suppliers=suppliers)

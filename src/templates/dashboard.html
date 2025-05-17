@@ -1,13 +1,13 @@
-{% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+
   <div class="form-header">
     <h1>Gestione Fornitori</h1>
-    <button id="addSupplierBtn" class="btn-red">+ Aggiungi Fornitore</button>
-  </div>
-
-  <table class="supplier-table">
+    <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
+      <button class="btn-red">+ Aggiungi / Visualizza Fornitori</button>
+    </a>
+  </div>  <table class="supplier-table">
     <thead>
       <tr>
         <th>Nome</th>
@@ -21,68 +21,15 @@
       <tr>
         <td>{{ supplier.name }}</td>
         <td>{{ supplier.email }}</td>
-        <td><a href="#">Vedi {{ supplier.products|length }} prodotti</a></td>
+        <td>{{ supplier.products|length }}</td>
         <td>
-          <a href="#">Modifica</a> | <a href="#">Elimina</a>
+          <a href="{{ url_for('suppliers_bp.edit_supplier', supplier_id=supplier.id) }}">Modifica</a> |
+          <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=supplier.id) }}" onclick="return confirm('Sei sicuro di voler eliminare questo fornitore?')">Elimina</a>
         </td>
       </tr>
       {% endfor %}
     </tbody>
-  </table>
-
-  <!-- Modal Aggiunta Fornitore -->
-  <div id="supplierModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Nuovo Fornitore</h2>
-      <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
-        <label>Nome Fornitore</label>
-        <input type="text" name="supplier_name" required>
-
-        <label>Email</label>
-        <input type="email" name="supplier_email" required>
-
-        <label>Telefono</label>
-        <input type="text" name="supplier_phone">
-
-        <div id="productFields">
-          <div class="product-row">
-            <input type="text" name="product_name[]" placeholder="Nome Prodotto" required>
-            <input type="text" name="unit[]" placeholder="Unità (es. kg, pezzi)" required>
-            <button type="button" class="remove-product">&#128465;</button>
-          </div>
-        </div>
-
-        <button type="button" id="addProduct">+ Aggiungi Prodotto</button>
-        <div class="form-actions">
-          <button type="submit" class="btn-red">Salva</button>
-          <button type="button" class="btn-cancel" id="cancelModal">Annulla</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    const modal = document.getElementById('supplierModal');
-    document.getElementById('addSupplierBtn').onclick = () => modal.classList.remove('hidden');
-    document.getElementById('cancelModal').onclick = () => modal.classList.add('hidden');
-    document.querySelector('.close-modal').onclick = () => modal.classList.add('hidden');
-
-    document.getElementById('addProduct').onclick = () => {
-      const container = document.getElementById('productFields');
-      const row = document.createElement('div');
-      row.classList.add('product-row');
-      row.innerHTML = `
-        <input type="text" name="product_name[]" placeholder="Nome Prodotto" required>
-        <input type="text" name="unit[]" placeholder="Unità" required>
-        <button type="button" class="remove-product">&#128465;</button>
-      `;
-      row.querySelector('.remove-product').onclick = () => row.remove();
-      container.appendChild(row);
-    };
-  </script>
-
-  <style>
+  </table>  <style>
     .btn-red {
       background: #e74c3c;
       color: white;
@@ -92,15 +39,7 @@
       cursor: pointer;
       font-weight: bold;
     }
-    .btn-cancel {
-      background: #bbb;
-      color: #000;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 8px;
-      margin-left: 10px;
-      font-weight: bold;
-    }
+
     .supplier-table {
       width: 100%;
       border-collapse: collapse;
@@ -110,55 +49,15 @@
       overflow: hidden;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
+
     .supplier-table th, .supplier-table td {
       padding: 14px;
       border-bottom: 1px solid #eee;
       text-align: left;
     }
+
     .supplier-table th {
       background-color: #f9f9f9;
     }
-    .modal.hidden {
-      display: none;
-    }
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 600px;
-      position: relative;
-    }
-    .close-modal {
-      position: absolute;
-      top: 10px; right: 20px;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-    .product-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .product-row input {
-      flex: 1;
-    }
-    .remove-product {
-      background: none;
-      border: none;
-      color: red;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-  </style>
-{% endblock %}
+  </style>{% endblock %}
+

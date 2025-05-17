@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from flask import Flask        # <-- questa riga serve!
 from src.extensions import db, migrate
-from src.routes.auth import auth_bp
+from src.routes.auth import auth_bp, login_manager
 from src.routes.suppliers import suppliers_bp
 from src.routes.orders import orders_bp
 from src.extensions import mail
@@ -36,6 +36,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    login_manager.init_app(app)
 
     # Registra le blueprint
     app.register_blueprint(auth_bp)

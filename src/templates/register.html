@@ -4,7 +4,9 @@
 {% block content %}
   <div class="form-header">
     <h1>Crea un account</h1>
-    <p style="color: #777; font-size: 0.95rem;">Compila il modulo per registrarti</p>
+    <p style="color: #777; font-size: 0.95rem; text-align:center;">
+      Compila il modulo per registrarti
+    </p>
   </div>
 
   <form method="POST" action="{{ url_for('auth_bp.register') }}">
@@ -13,7 +15,7 @@
     <button type="submit">Registrati</button>
   </form>
 
-  <div class="extra-links">
+  <div class="extra-links" style="text-align: center; margin-top: 1rem;">
     <p>Hai già un account? <a href="{{ url_for('auth_bp.login') }}">Accedi</a></p>
   </div>
 {% endblock %}
