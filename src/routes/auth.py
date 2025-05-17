@@ -41,25 +41,21 @@ def register():
 
     return render_template('register.html')
 
-# Login
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if 'user_id' in session:
-        return redirect(url_for('auth_bp.success'))
-
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form['email']
+        password = request.form['password']
 
-        user = User.query.filter_by(email=email).first()
-        if user and check_password_hash(user.password, password):
+        user = db.session.query(User).filter_by(email=email).first()
+
+        if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
-            flash('Accesso effettuato.', 'success')
-            return redirect(url_for('auth_bp.success'))
+            flash('Login successful!', 'success')
+            return redirect(url_for('main.dashboard'))  # <-- controlla dove stai mandando
         else:
-            flash('Email o password errati.', 'danger')
-            return redirect(url_for('auth_bp.login'))
-
+            flash('Invalid credentials', 'danger')
+            return redirect(url_for('auth.login'))
     return render_template('login.html')
 
 # Logout
