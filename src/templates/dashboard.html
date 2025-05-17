@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
+
 {% block content %}
   <div class="form-header">
-    <h1>Dashboard</h1>
+    <h1>Benvenuto nella tua Dashboard</h1>
+    <p style="color: #777; font-size: 0.95rem;">Hai effettuato l'accesso con l'ID utente:</p>
   </div>
-  <p>Sei loggato come {{ session['user_id'] }}</p>
+
+  <p style="text-align: center; font-weight: 600; color: #2c3e50; margin-top: 0.5rem;">{{ session['user_id'] }}</p>
+
   <div class="extra-links">
-    <p><a href="{{ url_for('auth_bp.logout') }}">Logout</a></p>
+    <p><a href="{{ url_for('auth_bp.logout') }}">Esci</a></p>
   </div>
 {% endblock %}

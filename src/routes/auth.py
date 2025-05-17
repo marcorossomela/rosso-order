@@ -41,21 +41,26 @@ def register():
 
     return render_template('register.html')
 
+# Login
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'user_id' in session:
+    return redirect(url_for('auth_bp.dashboard'))
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
 
-        user = db.session.query(User).filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
-            flash('Login successful!', 'success')
-            return redirect(url_for('main.dashboard'))  # <-- controlla dove stai mandando
+            flash('Login effettuato con successo!', 'success')
+            return redirect(url_for('auth_bp.dashboard'))
         else:
-            flash('Invalid credentials', 'danger')
-            return redirect(url_for('auth.login'))
+            flash('Credenziali non valide.', 'danger')
+            return redirect(url_for('auth_bp.login'))
+
     return render_template('login.html')
 
 # Logout
@@ -65,10 +70,18 @@ def logout():
     flash('Logout effettuato.', 'success')
     return redirect(url_for('auth_bp.login'))
 
-# Pagina protetta post-login
+# Pagina success post-registrazione
 @auth_bp.route('/success')
 def success():
     if 'user_id' not in session:
         flash('Devi effettuare il login per accedere.', 'warning')
         return redirect(url_for('auth_bp.login'))
     return render_template('success.html')
+
+# Dashboard protetta
+@auth_bp.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        flash('Devi effettuare il login per accedere alla dashboard.', 'warning')
+        return redirect(url_for('auth_bp.login'))
+    return render_template('dashboard.html')

@@ -2,12 +2,13 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}App{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: #f4f6f8;
+      background: #f0f2f5;
       margin: 0;
       padding: 0;
       display: flex;
@@ -26,30 +27,37 @@
     }
 
     .container {
-      margin-top: 20px;
-      background: white;
+      margin: 2rem 1rem;
+      background: #ffffff;
       padding: 2rem;
       border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 90%;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      width: 100%;
       max-width: 400px;
     }
 
-    h1 {
+    h1, h2 {
       text-align: center;
-      margin-bottom: 1rem;
       color: #333;
+      margin-bottom: 1rem;
     }
 
     input[type="text"],
     input[type="password"],
     input[type="email"] {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-bottom: 1rem;
-      border-radius: 10px;
       border: 1px solid #ccc;
+      border-radius: 12px;
       font-size: 1rem;
+      background-color: #fafafa;
+      transition: border 0.2s;
+    }
+
+    input:focus {
+      border-color: #e74c3c;
+      outline: none;
     }
 
     button {
@@ -63,7 +71,7 @@
       font-weight: 600;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background-color 0.3s ease;
     }
 
     button:hover {
@@ -73,11 +81,30 @@
     .extra-links {
       text-align: center;
       margin-top: 1rem;
+      font-size: 0.9rem;
     }
 
-    a {
+    .extra-links a {
       color: #e74c3c;
       text-decoration: none;
+    }
+
+    .flash {
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .flash-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .flash-error {
+      background-color: #f8d7da;
+      color: #721c24;
     }
 
     .form-header {
@@ -87,7 +114,7 @@
 </head>
 <body>
   <div class="logo-container">
-    <img src="{{ url_for('static', filename='images/rosso_new_logo.jpg') }}" alt="Rossopomodoro Logo">
+    <img src="{{ url_for('static', filename='images/rosso_new_logo.png') }}" alt="Rossopomodoro Logo">
   </div>
 
   <div class="container">
@@ -98,6 +125,7 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
+
     {% block content %}{% endblock %}
   </div>
 </body>
