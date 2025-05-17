@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Ordini{% endblock %}
+
+{% block content %}
+<div class="form-header">
+  <h1>Crea un Nuovo Ordine</h1>
+</div>
+
+<form method="POST" action="{{ url_for('orders_bp.create_order') }}">
+  <div>
+    <label for="supplier_id">Fornitore:</label>
+    <select name="supplier_id" id="supplier_id" required>
+      <option value="">Seleziona fornitore</option>
+      {% for supplier in suppliers %}
+        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <hr>
+  <h3>Prodotti</h3>
+  <table style="width:100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>Prodotto</th>
+        <th>Unità</th>
+        <th>Quantità</th>
+        <th>Modifica</th>
+        <th>Elimina</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.unit }}</td>
+        <td>
+          <input type="number" name="quantities[{{ product.id }}]" min="0" value="0" style="width:60px;">
+        </td>
+        <td>
+          <a href="{{ url_for('supplier_bp.edit_product', product_id=product.id) }}">✏️</a>
+        </td>
+        <td>
+          <a href="{{ url_for('supplier_bp.delete_product', product_id=product.id) }}" onclick="return confirm('Sicuro di eliminare il prodotto?');">❌</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+  <label for="cc_email">CC (in copia):</label>
+  <input type="email" name="cc_email" id="cc_email" placeholder="Inserisci un'email per la copia">
+  <button type="submit" style="margin-top: 16px;">Invia Ordine</button>
+</form>
+{% endblock %}
