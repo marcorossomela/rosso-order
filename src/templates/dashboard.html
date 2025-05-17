@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <div class="form-header">
+    <h1>Dashboard</h1>
+  </div>
+  <p>Sei loggato come {{ session['user_id'] }}</p>
+  <div class="extra-links">
+    <p><a href="{{ url_for('auth_bp.logout') }}">Logout</a></p>
+  </div>
+{% endblock %}

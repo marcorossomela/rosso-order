@@ -12,9 +12,7 @@ def create_app():
 
     # Secret key per sessioni e sicurezza
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your_default_fallback_secret_key")
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_url or f"sqlite:///{os.path.join(app.instance_path, 'app.db')}"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"poolclass": NullPool}
+    
 
     # Configurazione del database da variabile d'ambiente
     database_url = os.environ.get("DATABASE_URL")

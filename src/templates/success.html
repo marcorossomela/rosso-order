@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-
 {% block title %}Registrazione completata{% endblock %}
-
 {% block content %}
   <div class="form-header">
     <h1>Registrazione completata</h1>
   </div>
   <p>Benvenuto! Il tuo account è stato creato con successo.</p>
   <div class="extra-links">
-    <p><a href="{{ url_for('auth_bp.login') }}">Accedi ora</a></p>
+    <p><a href="{{ url_for('auth_bp.dashboard') }}">Vai alla Dashboard</a></p>
   </div>
 {% endblock %}
