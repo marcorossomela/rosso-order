@@ -1,15 +1,69 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
-
 {% block content %}
   <div class="form-header">
-    <h1>Benvenuto nella tua Dashboard</h1>
-    <p style="color: #777; font-size: 0.95rem;">Hai effettuato l'accesso con l'ID utente:</p>
+    <h1>Benvenuto nella Dashboard</h1>
   </div>
 
-  <p style="text-align: center; font-weight: 600; color: #2c3e50; margin-top: 0.5rem;">{{ session['user_id'] }}</p>
+  <div class="card-grid">
+    <div class="card">
+      <h2>Fornitori</h2>
+      <p>Aggiungi o gestisci i tuoi fornitori.</p>
+      <a href="#" class="card-button">Gestisci Fornitori</a>
+    </div>
 
-  <div class="extra-links">
-    <p><a href="{{ url_for('auth_bp.logout') }}">Esci</a></p>
+    <div class="card">
+      <h2>Prodotti</h2>
+      <p>Visualizza e modifica i prodotti associati.</p>
+      <a href="#" class="card-button">Gestisci Prodotti</a>
+    </div>
+
+    <div class="card">
+      <h2>Ordini</h2>
+      <p>Crea e invia ordini ai fornitori.</p>
+      <a href="#" class="card-button">Nuovo Ordine</a>
+    </div>
   </div>
+
+  <div class="extra-links" style="margin-top: 2rem;">
+    <p><a href="{{ url_for('auth_bp.logout') }}">Logout</a></p>
+  </div>
+
+  <style>
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .card h2 {
+      color: #e74c3c;
+      margin-bottom: 10px;
+    }
+
+    .card-button {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #e74c3c;
+      color: white;
+      border-radius: 25px;
+      text-decoration: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s;
+    }
+
+    .card-button:hover {
+      background-color: #c0392b;
+    }
+  </style>
 {% endblock %}
