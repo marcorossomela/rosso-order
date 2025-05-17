@@ -45,7 +45,7 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
-    return redirect(url_for('auth_bp.dashboard'))
+        return redirect(url_for('auth_bp.dashboard'))
 
     if request.method == 'POST':
         email = request.form['email']
@@ -62,6 +62,7 @@ def login():
             return redirect(url_for('auth_bp.login'))
 
     return render_template('login.html')
+
 
 # Logout
 @auth_bp.route('/logout')
