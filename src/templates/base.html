@@ -1,98 +1,95 @@
-<!DOCTYPE html>
-<html lang="it">
+<!DOCTYPE html><html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}App{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Reset e layout generale */
     body {
       font-family: 'Poppins', sans-serif;
       background: #f0f2f5;
       margin: 0;
       padding: 0;
-    }
+    }nav {
+  background: #e74c3c;
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+nav .logo {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+nav a {
+  color: white;
+  margin-left: 15px;
+  text-decoration: none;
+  font-weight: 500;
+}
+nav a:hover {
+  text-decoration: underline;
+}
 
-    /* Navbar in alto */
-    nav {
-      background: #e74c3c;
-      color: white;
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    nav .logo {
-      font-weight: 600;
-      font-size: 1.2rem;
-    }
-    nav a {
-      color: white;
-      margin-left: 15px;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
+.logo-container {
+  text-align: center;
+  margin: 20px 0;
+}
+.logo-container img {
+  max-width: 220px;
+  height: auto;
+}
 
-    /* Logo centrale */
-    .logo-container {
-      text-align: center;
-      margin: 20px 0;
-    }
-    .logo-container img {
-      max-width: 220px;
-      height: auto;
-    }
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
 
-    /* Contenitore principale */
-    .container {
-      max-width: 1000px;
-      margin: 20px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    }
+.flash {
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+.flash.success { background-color: #d4edda; color: #155724; }
+.flash.warning { background-color: #fff3cd; color: #856404; }
+.flash.danger  { background-color: #f8d7da; color: #721c24; }
 
-    /* Messaggi flash */
-    .flash {
-      padding: 0.8rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-    .flash.success { background-color: #d4edda; color: #155724; }
-    .flash.warning { background-color: #fff3cd; color: #856404; }
-    .flash.danger  { background-color: #f8d7da; color: #721c24; }
+a { color: #e74c3c; }
+a:hover { text-decoration: underline; }
 
-    /* Collegamenti generali */
-    a { color: #e74c3c; }
-    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  {% if current_user.is_authenticated %}
   <nav>
     <div class="logo">Rossopomodoro</div>
     <div>
-      <a href="{{ url_for('auth_bp.dashboard') }}">Dashboard</a>
-      <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}">Fornitori</a>
-      <a href="{{ url_for('auth_bp.logout') }}">Logout</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('auth_bp.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}">Fornitori</a>
+        <a href="{{ url_for('auth_bp.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth_bp.login') }}">Login</a>
+      {% endif %}
     </div>
-  </nav>
-  {% endif %}
+  </nav>  <div class="logo-container">
+    <img src="{{ url_for('static', filename='images/rosso_new_logo.png') }}" alt="Rossopomodoro Logo">
+  </div>  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}{% block content %}{% endblock %}
 
-  <div class="logo-container">
-    <!-- logo sempre visibile -->
-  </div>
-
-  <div class="container">
-    <!-- flash e block content -->
   </div>
 </body>
 </html>

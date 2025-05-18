@@ -1,37 +1,42 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from src.models.supplier import Supplier
-from src.models.product import Product
-from flask_mail import Message
-from src.extensions import db, mail
+from flask import Blueprint, render_template, request, redirect, url_for, flash from flask_mail import Message from flask_login import login_required from src.extensions import db, mail from src.models.order import Order from src.models.supplier import Supplier
 
-orders_bp = Blueprint('orders_bp', __name__)
+orders_bp = Blueprint('orders_bp', name)
 
-@orders_bp.route('/orders', methods=['GET', 'POST'])
-def orders():
-    suppliers = Supplier.query.all()
-    products = Product.query.all()
+@orders_bp.route('/create', methods=['GET', 'POST']) @login_required def create_order(): suppliers = Supplier.query.all()
 
-    if request.method == 'POST':
-        supplier_id = request.form.get('supplier_id')
-        cc_email = request.form.get('cc_email')
-        selected_supplier = Supplier.query.get(supplier_id)
+if request.method == 'POST':
+    supplier_id = request.form.get('supplier_id')
+    details = request.form.get('details')
+    cc_email = request.form.get('cc_email')
 
-        order_lines = []
-        for product in products:
-            qty = request.form.get(f'quantity_{product.id}')
-            if qty and qty.strip() != "":
-                order_lines.append(f"{product.name} ({product.unit}): {qty}")
+    if not supplier_id or not details:
+        flash('Tutti i campi sono obbligatori.', 'danger')
+        return redirect(url_for('orders_bp.create_order'))
 
-        body = f"Ordine per {selected_supplier.name}:\n\n" + "\n".join(order_lines)
+    supplier = Supplier.query.get(supplier_id)
+    if not supplier:
+        flash('Fornitore non valido.', 'danger')
+        return redirect(url_for('orders_bp.create_order'))
 
+    # Salva ordine nel DB
+    new_order = Order(supplier_id=supplier_id, details=details)
+    db.session.add(new_order)
+    db.session.commit()
+
+    # Invia l'email
+    try:
         msg = Message(
-            subject="Nuovo ordine Rossopomodoro",
-            recipients=[selected_supplier.email],
-            cc=[cc_email] if cc_email else [],
-            body=body
+            subject=f"Nuovo Ordine da Rossopomodoro",
+            recipients=[supplier.email],
+            body=f"Ciao {supplier.name},\n\nHai ricevuto un nuovo ordine:\n\n{details}\n\nGrazie!",
+            cc=[cc_email] if cc_email else []
         )
         mail.send(msg)
-        flash('Ordine inviato con successo!', 'success')
-        return redirect(url_for('orders_bp.orders'))
+        flash('Ordine inviato e salvato correttamente.', 'success')
+    except Exception as e:
+        flash(f"Errore nell'invio email: {e}", 'danger')
 
-    return render_template('orders.html', suppliers=suppliers, products=products)
+    return redirect(url_for('auth_bp.dashboard'))
+
+return render_template('create_order.html', suppliers=suppliers)
+
