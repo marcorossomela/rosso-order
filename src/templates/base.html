@@ -1,134 +1,53 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}App{% endblock %}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+{% extends "base.html" %} {% block title %}Login{% endblock %}
+
+{% block content %}
+
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding: 0;
-    }
-
-    .logo-container {
-      text-align: center;
-      padding: 20px;
-    }
-
-    .logo-container img {
-      max-width: 220px;
-      height: auto;
-    }
-
-    .container {
-      margin: 0 auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-      max-width: 900px;
-    }
-
-    h1, h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
     form input[type="email"],
-    form input[type="password"],
-    form input[type="text"] {
-    width: 100%;
-    max-width: 360px;
-    margin: 0 auto 1rem auto;
-    display: block;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    font-size: 1rem;
-    background-color: #fafafa;
-    transition: border 0.2s;
-}
-    }
-
-    input:focus, select:focus {
-      border-color: #e74c3c;
-      outline: none;
-    }
-
-    button {
+    form input[type="password"] {
       width: 100%;
+      max-width: 360px;
+      margin: 0 auto 1rem auto;
+      display: block;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 1rem;
+      background-color: #fafafa;
+      transition: border 0.2s;
+    }
+
+    form button {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto 1rem auto;
+      display: block;
       padding: 12px;
       background-color: #e74c3c;
       color: white;
       border: none;
-      border-radius: 25px;
+      border-radius: 10px;
       font-size: 1rem;
       font-weight: 600;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    button:hover {
+    form button:hover {
       background-color: #c0392b;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
     }
-
-    .flash {
-      padding: 0.8rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .flash.success, .flash-success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .flash.warning, .flash-warning {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-
-    .flash.danger, .flash-error, .flash-danger {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-
-    a {
-      color: #e74c3c;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="logo-container">
-    <img src="{{ url_for('static', filename='images/rosso_new_logo.png') }}" alt="Rossopomodoro Logo">
+  </style>  <div class="form-header">
+    <h1>Accedi</h1>
+    <p style="color: #777; font-size: 0.95rem; text-align:center;">
+      Inserisci le tue credenziali per accedere
+    </p>
+  </div>  <form method="POST" action="{{ url_for('auth_bp.login') }}">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Accedi</button>
+  </form>  <div class="extra-links" style="text-align: center; margin-top: 1rem;">
+    <p>Non hai un account? <a href="{{ url_for('auth_bp.register') }}">Registrati</a></p>
   </div>
-
-  <div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    {% block content %}{% endblock %}
-  </div>
-</body>
-</html>
+{% endblock %}
