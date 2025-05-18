@@ -1,4 +1,5 @@
 from src.extensions import db
+from sqlalchemy.orm import backref
 
 class Supplier(db.Model):
     __tablename__ = 'suppliers'
@@ -9,7 +10,7 @@ class Supplier(db.Model):
     phone = db.Column(db.String(50), nullable=True)
 
     products = db.relationship('Product', backref='supplier', lazy=True, cascade='all, delete-orphan')
-    orders = db.relationship('Order', backref='supplier', lazy=True, cascade='all, delete-orphan')
+    orders = db.relationship('Order', backref=backref('supplier', lazy=True), lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Supplier {self.name}>'
