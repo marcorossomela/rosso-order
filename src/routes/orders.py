@@ -1,4 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash from flask_mail import Message from flask_login import login_required from src.extensions import db, mail from src.models.order import Order from src.models.supplier import Supplier
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_mail import Message
+from flask_login import login_required
+from src.extensions import db, mail
+from src.models.order import Order
+from src.models.supplier import Supplier
 
 orders_bp = Blueprint('orders_bp', name)
 
