@@ -76,8 +76,7 @@
   </style>
 </head>
 <body>
-
-  <!-- Navbar -->
+  {% if current_user.is_authenticated %}
   <nav>
     <div class="logo">Rossopomodoro</div>
     <div>
@@ -86,24 +85,14 @@
       <a href="{{ url_for('auth_bp.logout') }}">Logout</a>
     </div>
   </nav>
+  {% endif %}
 
-  <!-- Logo sotto navbar -->
   <div class="logo-container">
-    <img src="{{ url_for('static', filename='images/rosso_new_logo.png') }}" alt="Rossopomodoro Logo">
+    <!-- logo sempre visibile -->
   </div>
 
-  <!-- Contenuto principale -->
   <div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    {% block content %}{% endblock %}
+    <!-- flash e block content -->
   </div>
-
 </body>
 </html>
