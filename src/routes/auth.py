@@ -9,19 +9,15 @@ auth_bp = Blueprint('auth_bp', __name__)
 login_manager = LoginManager()
 login_manager.login_view = 'auth_bp.login'
 
-# auth.py
-
 @login_manager.user_loader
 def load_user(user_id):
-    # Non usare int(): user_id è già la chiave primaria così com’è
-    return User.query.get(user_id)
+    # Usa db.session.get che supporta anche UUID (string)
+    return db.session.get(User, user_id)
 
-# Homepage
 @auth_bp.route('/')
 def index():
     return redirect(url_for('auth_bp.login'))
 
-# Registrazione
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -52,9 +48,10 @@ def register():
 
     return render_template('register.html')
 
-# Login
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    logout_user()  # Svuota eventuale sessione corrotta
+
     if current_user.is_authenticated:
         return redirect(url_for('auth_bp.dashboard'))
 
@@ -64,7 +61,7 @@ def login():
 
         user = User.query.filter_by(email=email).first()
 
-        if user and check_password_hash(user.password_hash, password):
+        if user and user.check_password(password):
             login_user(user)
             flash('Login effettuato con successo!', 'success')
             return redirect(url_for('auth_bp.dashboard'))
@@ -74,7 +71,6 @@ def login():
 
     return render_template('login.html')
 
-# Logout
 @auth_bp.route('/logout')
 @login_required
 def logout():
@@ -82,7 +78,6 @@ def logout():
     flash('Logout effettuato.', 'success')
     return redirect(url_for('auth_bp.login'))
 
-# Dashboard protetta
 @auth_bp.route('/dashboard')
 @login_required
 def dashboard():
