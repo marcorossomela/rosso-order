@@ -8,7 +8,8 @@ from src.models.supplier import Supplier
 orders_bp = Blueprint('orders_bp', name)
 
 @orders_bp.route('/create', methods=['GET', 'POST']) 
-@login_required def create_order(): 
+@login_required 
+def create_order(): 
     suppliers = Supplier.query.all()
 
 if request.method == 'POST':
