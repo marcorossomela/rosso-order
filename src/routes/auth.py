@@ -9,9 +9,12 @@ auth_bp = Blueprint('auth_bp', __name__)
 login_manager = LoginManager()
 login_manager.login_view = 'auth_bp.login'
 
+# auth.py
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    # Non usare int(): user_id è già la chiave primaria così com’è
+    return User.query.get(user_id)
 
 # Homepage
 @auth_bp.route('/')
