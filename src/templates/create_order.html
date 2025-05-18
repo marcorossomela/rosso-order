@@ -24,7 +24,7 @@
       font-weight: 600;
     }
 
-    form input, form select, form textarea {
+    form input, form select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
@@ -32,8 +32,32 @@
       font-size: 1rem;
     }
 
-    form textarea {
-      min-height: 120px;
+    .product-block {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .product-block h4 {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .product-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .product-line label {
+      flex: 1;
+    }
+
+    .product-line select {
+      width: 80px;
     }
 
     button {
@@ -60,15 +84,29 @@
 
     <form method="POST" action="{{ url_for('orders_bp.create_order') }}">
       <label for="supplier_id">Fornitore</label>
-      <select name="supplier_id" id="supplier_id" required>
+      <select name="supplier_id" id="supplier_id" onchange="showProducts()" required>
         <option value="">Seleziona Fornitore</option>
         {% for supplier in suppliers %}
           <option value="{{ supplier.id }}">{{ supplier.name }}</option>
         {% endfor %}
       </select>
 
-      <label for="details">Dettagli Ordine</label>
-      <textarea name="details" id="details" placeholder="Scrivi i prodotti e le quantità..." required></textarea>
+      {% for supplier in suppliers %}
+        <div class="product-block" id="products-{{ supplier.id }}" style="display: none;">
+          <h4>Prodotti per {{ supplier.name }}</h4>
+          {% for product in supplier.products %}
+            <div class="product-line">
+              <label>{{ product.name }} ({{ product.unit }})</label>
+              <select name="product_{{ product.id }}">
+                <option value="0">0</option>
+                {% for i in range(1, 21) %}
+                  <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
 
       <label for="cc_email">CC (opzionale)</label>
       <input type="email" name="cc_email" id="cc_email" placeholder="Tua email per copia ordine">
@@ -76,4 +114,17 @@
       <button type="submit">Invia Ordine</button>
     </form>
   </div>
+
+  <script>
+    function showProducts() {
+      const supplierId = document.getElementById('supplier_id').value;
+      const blocks = document.querySelectorAll('.product-block');
+      blocks.forEach(block => block.style.display = 'none');
+
+      if (supplierId) {
+        const selectedBlock = document.getElementById('products-' + supplierId);
+        if (selectedBlock) selectedBlock.style.display = 'block';
+      }
+    }
+  </script>
 {% endblock %}

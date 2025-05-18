@@ -1,103 +1,109 @@
-{% extends "base.html" %}
-{% block title %}Fornitori e Prodotti{% endblock %}
+{% extends "base.html" %} {% block title %}Fornitori e Prodotti{% endblock %}
 
 {% block content %}
-<style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>
   .form-section {
     background: white;
     padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   }
 
   .form-section h3 {
-    margin-bottom: 10px;
-    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
   }
 
-  form input, form select, form button {
+  input, select, button {
     display: block;
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    font-size: 1rem;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 6px;
+    font-size: 1rem;
   }
 
-  form button {
-    background: #1f7aec;
+  button {
+    background-color: #1f7aec;
     color: white;
     font-weight: bold;
     border: none;
-    transition: background 0.2s;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
   }
 
-  form button:hover {
-    background: #135cc7;
-  }
-
-  .supplier-list {
-    margin-top: 40px;
+  button:hover {
+    background-color: #135cc7;
   }
 
   .supplier-card {
     background: #fff;
-    padding: 20px;
-    margin-bottom: 16px;
+    padding: 16px;
+    margin: 20px auto;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    width: 90%;
+    max-width: 600px;
+  }
+
+  .supplier-card ul {
+    padding-left: 20px;
+    margin-top: 10px;
+  }
+
+  .supplier-card li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .actions a {
+    margin-left: 6px;
+    text-decoration: none;
+  }
+
+  .actions a:hover i {
+    color: #e74c3c;
+    transition: color 0.2s ease;
   }
 
   .supplier-card strong {
     font-size: 1.1rem;
   }
 
-  .supplier-card .actions {
-    float: right;
-    font-size: 1.1rem;
-  }
-
-  .supplier-card .actions a {
-    margin-left: 10px;
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-weight: 500;
+    color: #1f7aec;
     text-decoration: none;
-    color: #e74c3c;
   }
 
-  .supplier-card ul {
-    margin: 10px 0 0 0;
-    padding-left: 20px;
+  .back-link:hover {
+    text-decoration: underline;
   }
-
-  .supplier-card li {
-    margin-bottom: 5px;
-  }
-
-  hr {
-    margin: 40px auto;
-    width: 60%;
-    border: 0;
-    height: 1px;
-    background: #ddd;
-  }
-</style>
-
-<div class="form-section">
-  <h3>Aggiungi Fornitore</h3>
+</style><a href="{{ url_for('auth_bp.dashboard') }}" class="back-link">
+  <i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard
+</a><div class="form-section">
+  <h3><i class="fa-solid fa-user-plus"></i> Aggiungi Fornitore</h3>
   <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
     <input type="text" name="name" placeholder="Nome Fornitore" required>
     <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="phone" placeholder="Telefono" required>
+    <input type="text" name="phone" placeholder="Telefono">
     <button type="submit">Salva Fornitore</button>
   </form>
-</div>
-
-<div class="form-section">
-  <h3>Aggiungi Prodotto</h3>
+</div><div class="form-section">
+  <h3><i class="fa-solid fa-box"></i> Aggiungi Prodotto</h3>
   <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
     <input type="text" name="name" placeholder="Nome Prodotto" required>
-    <input type="text" name="unit" placeholder="Unità di misura (Kg, Case, Each...)" required>
+    <input type="text" name="unit" placeholder="Unità di misura" required>
     <select name="supplier_id" required>
       <option value="">Seleziona Fornitore</option>
       {% for supplier in suppliers %}
@@ -106,33 +112,36 @@
     </select>
     <button type="submit">Salva Prodotto</button>
   </form>
-</div>
+</div><h3 style="text-align:center; margin-top:40px;">Fornitori e Prodotti</h3>{% for supplier in suppliers %}
 
-<hr>
-
-<div class="supplier-list">
-  <h3 style="text-align: center;">Fornitori e Prodotti</h3>
-
-  {% for supplier in suppliers %}
-    <div class="supplier-card">
-      <div>
-        <strong>{{ supplier.name }}</strong>
-        <span class="actions">
-          <a href="{{ url_for('suppliers_bp.edit_supplier', supplier_id=supplier.id) }}" title="Modifica Fornitore">✏️</a>
-          <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=supplier.id) }}" title="Elimina Fornitore" onclick="return confirm('Sei sicuro?')">❌</a>
-        </span>
-      </div>
-      <div>{{ supplier.email }} | {{ supplier.phone }}</div>
-      <ul>
-        {% for product in supplier.products %}
-          <li>
-            {{ product.name }} ({{ product.unit }})
-            <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}" title="Modifica Prodotto">✏️</a>
-            <a href="{{ url_for('suppliers_bp.delete_product', product_id=product.id) }}" title="Elimina Prodotto" onclick="return confirm('Eliminare questo prodotto?')">❌</a>
-          </li>
-        {% endfor %}
-      </ul>
+  <div class="supplier-card">
+    <div>
+      <strong>{{ supplier.name }}</strong>
+      <span class="actions">
+        <a href="{{ url_for('suppliers_bp.edit_supplier', supplier_id=supplier.id) }}" title="Modifica Fornitore">
+          <i class="fa-solid fa-pen-to-square" style="color: black;"></i>
+        </a>
+        <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=supplier.id) }}" title="Elimina Fornitore" onclick="return confirm('Sei sicuro?')">
+          <i class="fa-solid fa-trash" style="color: black;"></i>
+        </a>
+      </span>
     </div>
-  {% endfor %}
-</div>
-{% endblock %}
+    <div>{{ supplier.email }} | {{ supplier.phone }}</div>
+    <ul>
+      {% for product in supplier.products %}
+        <li>
+          <span>{{ product.name }} ({{ product.unit }})</span>
+          <span class="actions">
+            <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}" title="Modifica Prodotto">
+              <i class="fa-solid fa-pen-to-square" style="color: black;"></i>
+            </a>
+            <a href="{{ url_for('suppliers_bp.delete_product', product_id=product.id) }}" title="Elimina Prodotto" onclick="return confirm('Vuoi davvero eliminare questo prodotto?')">
+              <i class="fa-solid fa-trash" style="color: black;"></i>
+            </a>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}{% endblock %}
+
