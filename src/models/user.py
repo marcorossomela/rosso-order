@@ -2,11 +2,12 @@ import uuid
 from src.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy.dialects.postgresql import UUID
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
 
@@ -15,6 +16,9 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        return str(self.id)  # fondamentale per UUID con Flask-Login
 
     def __repr__(self):
         return f'<User {self.email}>'
