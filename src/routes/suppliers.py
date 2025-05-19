@@ -72,15 +72,34 @@ def edit_supplier(supplier_id):
     supplier = Supplier.query.get_or_404(supplier_id)
 
     if request.method == 'POST':
+        # Aggiorna dati del fornitore
         supplier.name = request.form.get('name', '').strip()
         supplier.email = request.form.get('email', '').strip()
         supplier.phone = request.form.get('phone', '').strip()
+
+        # Aggiunta nuovi prodotti se presenti
+        product_names = request.form.getlist('product_name[]')
+        product_units = request.form.getlist('product_unit[]')
+
+        for pname, unit in zip(product_names, product_units):
+            if pname.strip() and unit.strip():
+                existing = Product.query.filter_by(
+                    name=pname.strip(),
+                    unit=unit.strip(),
+                    supplier_id=supplier.id
+                ).first()
+                if not existing:
+                    db.session.add(Product(
+                        name=pname.strip(),
+                        unit=unit.strip(),
+                        supplier_id=supplier.id
+                    ))
+
         db.session.commit()
-        flash('Fornitore aggiornato con successo!', 'success')
+        flash('Fornitore e nuovi prodotti aggiornati con successo!', 'success')
         return redirect(url_for('suppliers_bp.manage_suppliers_products'))
 
     return render_template('edit_supplier.html', supplier=supplier)
-
 
 @suppliers_bp.route('/delete/<string:supplier_id>', methods=['POST', 'GET'])
 def delete_supplier(supplier_id):
