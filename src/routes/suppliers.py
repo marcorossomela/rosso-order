@@ -1,4 +1,3 @@
-# === FILE 1: suppliers.py aggiornato ===
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from src.extensions import db
 from src.models.supplier import Supplier
@@ -61,3 +60,68 @@ def manage_suppliers_products():
 
     suppliers = Supplier.query.all()
     return render_template('suppliers.html', suppliers=suppliers)
+
+@suppliers_bp.route('/edit/<supplier_id>', methods=['GET', 'POST'])
+def edit_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+
+    if request.method == 'POST':
+        supplier.name = request.form.get('name', '').strip()
+        supplier.email = request.form.get('email', '').strip()
+        supplier.phone = request.form.get('phone', '').strip()
+        db.session.commit()
+        flash('Fornitore aggiornato con successo!', 'success')
+        return redirect(url_for('suppliers_bp.manage_suppliers_products'))
+
+    return render_template('edit_supplier.html', supplier=supplier)
+
+
+---
+
+2. edit_supplier.html
+
+{% extends "base.html" %}
+{% block title %}Modifica Fornitore{% endblock %}
+
+{% block content %}
+<style>
+  .form-container {
+    background: white;
+    padding: 25px;
+    margin: 40px auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  input, button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  button {
+    background-color: #1f7aec;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #135cc7;
+  }
+</style>
+
+<div class="form-container">
+  <h2>Modifica Fornitore</h2>
+  <form method="POST">
+    <input type="text" name="name" value="{{ supplier.name }}" placeholder="Nome Fornitore" required>
+    <input type="email" name="email" value="{{ supplier.email }}" placeholder="Email" required>
+    <input type="text" name="phone" value
