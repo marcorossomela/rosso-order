@@ -24,25 +24,33 @@ def manage_suppliers_products():
                     db.session.flush()
 
                     product_names = request.form.getlist('product_name[]')
-product_units = request.form.getlist('product_unit[]')
+                    product_units = request.form.getlist('product_unit[]')
 
-for pname, unit in zip(product_names, product_units):
-    if pname and unit:
-        db.session.add(Product(name=pname.strip(), unit=unit.strip(), supplier_id=supplier.id))
+                    for pname, unit in zip(product_names, product_units):
+                        if pname and unit:
+                            db.session.add(Product(
+                                name=pname.strip(),
+                                unit=unit.strip(),
+                                supplier_id=supplier.id
+                            ))
 
-db.session.commit()
-flash('Fornitore e prodotti aggiunti con successo.', 'success')
+                    db.session.commit()
+                    flash('Fornitore e prodotti aggiunti con successo.', 'success')
             else:
                 flash('Nome e email sono obbligatori per il fornitore.', 'danger')
 
-        # Aggiunta prodotto
+        # Aggiunta singolo prodotto
         elif 'supplier_id' in request.form:
             name = request.form.get('name', '').strip()
             unit = request.form.get('unit', '').strip()
             supplier_id = request.form.get('supplier_id')
 
             if name and unit and supplier_id:
-                existing = Product.query.filter_by(name=name, unit=unit, supplier_id=supplier_id).first()
+                existing = Product.query.filter_by(
+                    name=name,
+                    unit=unit,
+                    supplier_id=supplier_id
+                ).first()
                 if existing:
                     flash('Prodotto già esistente per questo fornitore.', 'warning')
                 else:
@@ -54,8 +62,10 @@ flash('Fornitore e prodotti aggiunti con successo.', 'success')
 
         return redirect(url_for('suppliers_bp.manage_suppliers_products'))
 
+    # GET
     suppliers = Supplier.query.all()
     return render_template('suppliers.html', suppliers=suppliers)
+
 
 @suppliers_bp.route('/edit/<string:supplier_id>', methods=['GET', 'POST'])
 def edit_supplier(supplier_id):
@@ -71,6 +81,7 @@ def edit_supplier(supplier_id):
 
     return render_template('edit_supplier.html', supplier=supplier)
 
+
 @suppliers_bp.route('/delete/<string:supplier_id>', methods=['POST', 'GET'])
 def delete_supplier(supplier_id):
     supplier = Supplier.query.get_or_404(supplier_id)
@@ -83,7 +94,8 @@ def delete_supplier(supplier_id):
     db.session.commit()
 
     flash('Fornitore e prodotti associati eliminati con successo.', 'success')
-    return redirect(url_for('suppliers_bp.manage_suppliers_products'))
+    return redirect(url_for('suppliers_bp.manage_suppliers_products')
+
 
 @suppliers_bp.route('/edit-product/<string:product_id>', methods=['GET', 'POST'])
 def edit_product(product_id):
@@ -99,4 +111,3 @@ def edit_product(product_id):
         return redirect(url_for('suppliers_bp.manage_suppliers_products'))
 
     return render_template('edit_product.html', product=product, suppliers=suppliers)
-
