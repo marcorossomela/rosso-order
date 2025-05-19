@@ -94,7 +94,7 @@ def delete_supplier(supplier_id):
     db.session.commit()
 
     flash('Fornitore e prodotti associati eliminati con successo.', 'success')
-    return redirect(url_for('suppliers_bp.manage_suppliers_products')
+    return redirect(url_for('suppliers_bp.manage_suppliers_products'))
 
 
 @suppliers_bp.route('/edit-product/<string:product_id>', methods=['GET', 'POST'])
