@@ -24,14 +24,14 @@ def manage_suppliers_products():
                     db.session.flush()
 
                     product_names = request.form.getlist('product_name[]')
-                    product_units = request.form.getlist('product_unit[]')
+product_units = request.form.getlist('product_unit[]')
 
 for pname, unit in zip(product_names, product_units):
     if pname and unit:
         db.session.add(Product(name=pname.strip(), unit=unit.strip(), supplier_id=supplier.id))
 
-                    db.session.commit()
-                    flash('Fornitore e prodotti base aggiunti!', 'success')
+db.session.commit()
+flash('Fornitore e prodotti aggiunti con successo.', 'success')
             else:
                 flash('Nome e email sono obbligatori per il fornitore.', 'danger')
 
