@@ -23,16 +23,12 @@ def manage_suppliers_products():
                     db.session.add(supplier)
                     db.session.flush()
 
-                    default_products = [
-                        ('Pomodoro', 'Kg'),
-                        ('Mozzarella', 'Kg'),
-                        ('Farina', 'Bag'),
-                        ('Olio', 'Each')
-                    ]
+                    product_names = request.form.getlist('product_name[]')
+                    product_units = request.form.getlist('product_unit[]')
 
-                    for pname, unit in default_products:
-                        product = Product(name=pname, unit=unit, supplier_id=supplier.id)
-                        db.session.add(product)
+for pname, unit in zip(product_names, product_units):
+    if pname and unit:
+        db.session.add(Product(name=pname.strip(), unit=unit.strip(), supplier_id=supplier.id))
 
                     db.session.commit()
                     flash('Fornitore e prodotti base aggiunti!', 'success')
@@ -88,4 +84,19 @@ def delete_supplier(supplier_id):
 
     flash('Fornitore e prodotti associati eliminati con successo.', 'success')
     return redirect(url_for('suppliers_bp.manage_suppliers_products'))
+
+@suppliers_bp.route('/edit-product/<string:product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    suppliers = Supplier.query.all()
+
+    if request.method == 'POST':
+        product.name = request.form.get('name', '').strip()
+        product.unit = request.form.get('unit', '').strip()
+        product.supplier_id = request.form.get('supplier_id')
+        db.session.commit()
+        flash('Prodotto aggiornato con successo!', 'success')
+        return redirect(url_for('suppliers_bp.manage_suppliers_products'))
+
+    return render_template('edit_product.html', product=product, suppliers=suppliers)
 

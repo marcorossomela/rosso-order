@@ -1,147 +1,120 @@
-{% extends "base.html" %} {% block title %}Fornitori e Prodotti{% endblock %}
+{% extends "base.html" %}
+{% block title %}Fornitori e Prodotti{% endblock %}
 
 {% block content %}
+<h2 class="mb-4 text-center">Gestione Fornitori</h2>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>
-  .form-section {
-    background: white;
-    padding: 20px;
-    margin: 20px auto;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  }
+<!-- Bottone per aprire il modal -->
+<div class="text-center mb-3">
+  <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+    + Aggiungi Fornitore
+  </button>
+</div>
 
-  .form-section h3 {
-    margin-bottom: 15px;
-    font-weight: 600;
-  }
+<!-- Lista fornitori e prodotti -->
+{% for supplier in suppliers %}
+  <div class="mb-4 p-3 border rounded-4 shadow-sm">
+    <h5>{{ supplier.name }}</h5>
+    <p>Email: {{ supplier.email }} | Telefono: {{ supplier.phone }}</p>
 
-  input, select, button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-  }
+    <a href="{{ url_for('suppliers_bp.edit_supplier', supplier_id=supplier.id) }}" class="btn btn-outline-primary btn-sm me-2">
+      Modifica
+    </a>
+    <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=supplier.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questo fornitore?')">
+      Elimina
+    </a>
 
-  button {
-    background-color: #1f7aec;
-    color: white;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-
-  button:hover {
-    background-color: #135cc7;
-  }
-
-  .supplier-card {
-    background: #fff;
-    padding: 16px;
-    margin: 20px auto;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    width: 90%;
-    max-width: 600px;
-  }
-
-  .supplier-card ul {
-    padding-left: 20px;
-    margin-top: 10px;
-  }
-
-  .supplier-card li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid #eee;
-  }
-
-  .actions a {
-    margin-left: 6px;
-    text-decoration: none;
-  }
-
-  .actions a:hover i {
-    color: #e74c3c;
-    transition: color 0.2s ease;
-  }
-
-  .supplier-card strong {
-    font-size: 1.1rem;
-  }
-
-  .back-link {
-    display: inline-block;
-    margin-bottom: 20px;
-    font-weight: 500;
-    color: #1f7aec;
-    text-decoration: none;
-  }
-
-  .back-link:hover {
-    text-decoration: underline;
-  }
-</style><a href="{{ url_for('auth_bp.dashboard') }}" class="back-link">
-  <i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard
-</a><div class="form-section">
-  <h3><i class="fa-solid fa-user-plus"></i> Aggiungi Fornitore</h3>
-  <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
-    <input type="text" name="name" placeholder="Nome Fornitore" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="phone" placeholder="Telefono">
-    <button type="submit">Salva Fornitore</button>
-  </form>
-</div><div class="form-section">
-  <h3><i class="fa-solid fa-box"></i> Aggiungi Prodotto</h3>
-  <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
-    <input type="text" name="name" placeholder="Nome Prodotto" required>
-    <input type="text" name="unit" placeholder="Unità di misura" required>
-    <select name="supplier_id" required>
-      <option value="">Seleziona Fornitore</option>
-      {% for supplier in suppliers %}
-        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Salva Prodotto</button>
-  </form>
-</div><h3 style="text-align:center; margin-top:40px;">Fornitori e Prodotti</h3>{% for supplier in suppliers %}
-
-  <div class="supplier-card">
-    <div>
-      <strong>{{ supplier.name }}</strong>
-      <span class="actions">
-        <a href="{{ url_for('suppliers_bp.edit_supplier', supplier_id=supplier.id) }}" title="Modifica Fornitore">
-          <i class="fa-solid fa-pen-to-square" style="color: black;"></i>
-        </a>
-        <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=supplier.id) }}" title="Elimina Fornitore" onclick="return confirm('Sei sicuro?')">
-          <i class="fa-solid fa-trash" style="color: black;"></i>
-        </a>
-      </span>
+    <div class="mt-3">
+      <strong>Prodotti:</strong>
+      <ul class="list-group mt-2">
+        {% for product in supplier.products %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ product.name }} ({{ product.unit }})
+            <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}" class="btn btn-sm btn-outline-secondary">Modifica</a>
+          </li>
+        {% else %}
+          <li class="list-group-item">Nessun prodotto associato.</li>
+        {% endfor %}
+      </ul>
     </div>
-    <div>{{ supplier.email }} | {{ supplier.phone }}</div>
-    <ul>
-      {% for product in supplier.products %}
-        <li>
-          <span>{{ product.name }} ({{ product.unit }})</span>
-          <span class="actions">
-            <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}" title="Modifica Prodotto">
-              <i class="fa-solid fa-pen-to-square" style="color: black;"></i>
-            </a>
-            <a href="{{ url_for('suppliers_bp.delete_product', product_id=product.id) }}" title="Elimina Prodotto" onclick="return confirm('Vuoi davvero eliminare questo prodotto?')">
-              <i class="fa-solid fa-trash" style="color: black;"></i>
-            </a>
-          </span>
-        </li>
-      {% endfor %}
-    </ul>
   </div>
-{% endfor %}{% endblock %}
+{% endfor %}
 
+<!-- Modal: Aggiungi Fornitore -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="addSupplierModalLabel">Aggiungi Nuovo Fornitore</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label">Nome Fornitore</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Telefono</label>
+            <input type="text" class="form-control" name="phone" required>
+          </div>
+
+          <label class="form-label">Prodotti</label>
+          <div id="products">
+            <div class="row mb-2 product-row">
+              <div class="col">
+                <input type="text" name="product_name[]" class="form-control" placeholder="Nome Prodotto" required>
+              </div>
+              <div class="col">
+                <input type="text" name="product_unit[]" class="form-control" placeholder="Unità (kg, ecc.)" required>
+              </div>
+              <div class="col-auto d-flex align-items-center">
+                <button type="button" class="btn btn-outline-danger" onclick="removeRow(this)">X</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-outline-secondary mt-2" onclick="addProduct()">+ Aggiungi Prodotto</button>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="submit" class="btn btn-danger">Salva Fornitore</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Script JS -->
+<script>
+function addProduct() {
+  const container = document.getElementById('products');
+  const row = document.createElement('div');
+  row.className = 'row mb-2 product-row';
+  row.innerHTML = `
+    <div class="col">
+      <input type="text" name="product_name[]" class="form-control" placeholder="Nome Prodotto" required>
+    </div>
+    <div class="col">
+      <input type="text" name="product_unit[]" class="form-control" placeholder="Unità (kg, ecc.)" required>
+    </div>
+    <div class="col-auto d-flex align-items-center">
+      <button type="button" class="btn btn-outline-danger" onclick="removeRow(this)">X</button>
+    </div>
+  `;
+  container.appendChild(row);
+}
+
+function removeRow(button) {
+  button.closest('.product-row').remove();
+}
+</script>
+{% endblock %}
