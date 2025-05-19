@@ -75,3 +75,17 @@ def edit_supplier(supplier_id):
 
     return render_template('edit_supplier.html', supplier=supplier)
 
+@suppliers_bp.route('/delete/<string:supplier_id>', methods=['POST', 'GET'])
+def delete_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+
+    # Elimina prima i prodotti associati
+    Product.query.filter_by(supplier_id=supplier.id).delete()
+
+    # Poi elimina il fornitore
+    db.session.delete(supplier)
+    db.session.commit()
+
+    flash('Fornitore e prodotti associati eliminati con successo.', 'success')
+    return redirect(url_for('suppliers_bp.manage_suppliers_products'))
+
