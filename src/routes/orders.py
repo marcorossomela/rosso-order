@@ -41,7 +41,7 @@ def create_order():
         details = "\n".join([f"{item['name']} - {item['quantity']} {item['unit']}" for item in order_items])
 
         # Salva nel DB
-        new_order = Order(supplier_id=supplier_id, details=details)
+        new_order = Order(supplier_id=supplier_id)
         db.session.add(new_order)
         db.session.commit()
 
