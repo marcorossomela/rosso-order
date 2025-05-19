@@ -5,7 +5,8 @@ from sqlalchemy.orm import backref
 class Supplier(db.Model):
     __tablename__ = 'suppliers'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True, default=lambda: 
+        str(uuid.uuid4()))
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(50), nullable=True)

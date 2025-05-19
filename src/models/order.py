@@ -10,7 +10,8 @@ order_items = db.Table('order_items',
 class Order(db.Model):
     __tablename__ = 'orders'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True, default=lambda: 
+        str(uuid.uuid4()))
     supplier_id = db.Column(db.String(36), db.ForeignKey('suppliers.id'), nullable=False)
 
     products = db.relationship(
