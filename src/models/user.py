@@ -10,6 +10,7 @@ class User(UserMixin, db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text("gen_random_uuid()"))
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    location = db.Column(db.String(50), nullable=False)  # Nuovo campo per la città
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -18,4 +19,4 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return f'<User {self.email}>'
+        return f'<User {self.email} - {self.location}>'

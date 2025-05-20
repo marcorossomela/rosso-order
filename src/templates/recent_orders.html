@@ -29,6 +29,15 @@
   .order-item strong {
     color: #e74c3c;
   }
+
+  .product-list {
+    margin-top: 10px;
+    padding-left: 20px;
+  }
+
+  .product-list li {
+    font-size: 0.95rem;
+  }
 </style>
 
 <div class="order-list">
@@ -39,6 +48,12 @@
       <div class="order-item">
         <p><strong>ID Ordine:</strong> {{ order.id }}</p>
         <p><strong>Fornitore:</strong> {{ order.supplier.name }}</p>
+
+        <ul class="product-list">
+          {% for item in order.items %}
+            <li>{{ item.product.name }} — Quantità: {{ item.quantity }}</li>
+          {% endfor %}
+        </ul>
       </div>
     {% endfor %}
   {% else %}

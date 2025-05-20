@@ -14,12 +14,14 @@
     }
 
     .form-wrapper input,
+    .form-wrapper select,
     .form-wrapper button {
       width: 100%;
       margin-bottom: 1rem;
     }
 
-    .form-wrapper input {
+    .form-wrapper input,
+    .form-wrapper select {
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 10px;
@@ -27,7 +29,8 @@
       background: #fafafa;
     }
 
-    .form-wrapper input:focus {
+    .form-wrapper input:focus,
+    .form-wrapper select:focus {
       border-color: #e74c3c;
     }
 
@@ -59,6 +62,21 @@
     <form method="POST" action="{{ url_for('auth_bp.register') }}">
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Password" required>
+
+      <select name="location" required>
+        <option value="">Seleziona la tua città</option>
+        <option value="Toronto">Toronto</option>
+        <option value="New York">New York</option>
+        <option value="Chicago">Chicago</option>
+        <option value="Los Angeles">Los Angeles</option>
+        <option value="Dallas">Dallas</option>
+        <option value="Boston">Boston</option>
+        <option value="Las Vegas">Las Vegas</option>
+        <option value="San Jose">San Jose</option>
+        <option value="Miami">Miami</option>
+        <option value="Denver">Denver</option>
+      </select>
+
       <button type="submit">Registrati</button>
     </form>
 

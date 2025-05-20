@@ -26,9 +26,10 @@ def register():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        location = request.form.get('location')
 
-        if not email or not password:
-            flash('Email e password sono obbligatori.', 'warning')
+        if not email or not password or not location:
+            flash('Tutti i campi sono obbligatori.', 'warning')
             return redirect(url_for('auth_bp.register'))
 
         existing_user = User.query.filter_by(email=email).first()
@@ -36,7 +37,7 @@ def register():
             flash('Email già registrata. Prova con un’altra.', 'danger')
             return redirect(url_for('auth_bp.register'))
 
-        new_user = User(email=email)
+        new_user = User(email=email, location=location)
         new_user.set_password(password)
 
         db.session.add(new_user)
@@ -81,5 +82,5 @@ def logout():
 @auth_bp.route('/dashboard')
 @login_required
 def dashboard():
-    suppliers = Supplier.query.all()
+    suppliers = Supplier.query.filter_by(location=current_user.location).all()
     return render_template('dashboard.html', suppliers=suppliers)

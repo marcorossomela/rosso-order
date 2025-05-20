@@ -56,10 +56,12 @@ def create_order():
 
     return render_template('create_order.html', suppliers=suppliers)
 
-@orders_bp.route('/recent')
+
+@orders_bp.route('/recent-orders')
 @login_required
+
 def recent_orders():
-    orders = Order.query.order_by(Order.id.desc()).all()
+    orders = Order.query.filter_by(location=current_user.location).order_by(Order.id.desc()).all()
     return render_template('recent_orders.html', orders=orders)
 
 def send_order_email(supplier, order_items, custom_cc=None):
