@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Ordini Recenti{% endblock %}
+
+{% block content %}
+<style>
+  .order-list {
+    max-width: 700px;
+    margin: 40px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+
+  .order-list h2 {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .order-item {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+  }
+
+  .order-item:last-child {
+    border-bottom: none;
+  }
+
+  .order-item strong {
+    color: #e74c3c;
+  }
+</style>
+
+<div class="order-list">
+  <h2>Ordini Recenti</h2>
+
+  {% if orders %}
+    {% for order in orders %}
+      <div class="order-item">
+        <p><strong>ID Ordine:</strong> {{ order.id }}</p>
+        <p><strong>Fornitore:</strong> {{ order.supplier.name }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Nessun ordine ancora registrato.</p>
+  {% endif %}
+</div>
+{% endblock %}

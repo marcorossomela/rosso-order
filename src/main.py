@@ -9,6 +9,7 @@ from src.extensions import db, migrate, mail
 from src.routes.auth import auth_bp, login_manager
 from src.routes.suppliers import suppliers_bp
 from src.routes.orders import orders_bp
+from src.config import Config
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -30,6 +31,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(suppliers_bp, url_prefix="/suppliers")
     app.register_blueprint(orders_bp, url_prefix="/orders")
+    
 
     with app.app_context():
         from src.models import user, supplier, product, order

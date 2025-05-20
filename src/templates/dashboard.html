@@ -1,15 +1,37 @@
-{% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2 class="mb-4 text-center">Gestione Fornitori</h2>
 
-<div class="text-center mb-3">
-  <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="btn btn-danger mb-2">Aggiungi / Visualizza Fornitori</a>
+<style>
+  .dashboard-actions a {
+    margin: 10px;
+    padding: 12px 20px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .dashboard-actions a:hover,
+  .dashboard-actions a:focus {
+    background-color: #c0392b !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .list-group-item {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: #fff;
+    padding: 16px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+</style><h2 class="mb-4 text-center">Gestione Fornitori</h2><div class="text-center dashboard-actions">
+  <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="btn btn-danger">Fornitori</a>
   <a href="{{ url_for('orders_bp.create_order') }}" class="btn btn-danger">Nuovo Ordine</a>
-</div>
-
-<div class="list-group">
+  <a href="{{ url_for('orders_bp.recent_orders') }}" class="btn btn-secondary">Ordini Recenti</a>
+</div><div class="list-group">
   {% for supplier in suppliers %}
     <div class="list-group-item d-flex justify-content-between align-items-center">
       <div style="font-weight: 600; font-size: 1rem;">
