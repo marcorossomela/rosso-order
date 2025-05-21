@@ -11,7 +11,6 @@ login_manager.login_view = 'auth_bp.login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Usa db.session.get che supporta anche UUID (string)
     return db.session.get(User, user_id)
 
 @auth_bp.route('/')
@@ -51,7 +50,7 @@ def register():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    logout_user()  # Svuota eventuale sessione corrotta
+    logout_user()
 
     if current_user.is_authenticated:
         return redirect(url_for('auth_bp.dashboard'))
