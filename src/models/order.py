@@ -1,4 +1,5 @@
 import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from src.extensions import db
 from src.models.order_item import OrderItem
 
@@ -14,12 +15,12 @@ class Order(db.Model):
     )
 
     user_id = db.Column(
-        db.String(36),
+        UUID(as_uuid=True),
         db.ForeignKey('users.id', name='fk_orders_user_id'),
-        nullable=False
+        nullable=True  # puoi metterlo False in una migrazione futura se serve
     )
 
-    location = db.Column(db.String(50), nullable=False)
+    location = db.Column(db.String(50), nullable=True)
 
     supplier = db.relationship('Supplier', backref='orders')
     items = db.relationship('OrderItem', backref='order', cascade='all, delete-orphan')

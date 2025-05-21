@@ -1,8 +1,8 @@
-"""Init UUID schema
+"""clean migrations
 
-Revision ID: beeb83245109
+Revision ID: 4a15dbd19b22
 Revises: 
-Create Date: 2025-05-18 21:54:04.676558
+Create Date: 2025-05-21 11:09:28.275545
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'beeb83245109'
+revision = '4a15dbd19b22'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,19 +23,24 @@ def upgrade():
     sa.Column('name', sa.String(length=120), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('phone', sa.String(length=50), nullable=True),
+    sa.Column('location', sa.String(length=50), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
     sa.Column('id', sa.UUID(), server_default=sa.text('(gen_random_uuid())'), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('password_hash', sa.String(length=200), nullable=False),
+    sa.Column('location', sa.String(length=50), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
     op.create_table('orders',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('supplier_id', sa.String(length=36), nullable=False),
-    sa.ForeignKeyConstraint(['supplier_id'], ['suppliers.id'], ),
+    sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.Column('location', sa.String(length=50), nullable=True),
+    sa.ForeignKeyConstraint(['supplier_id'], ['suppliers.id'], name='fk_orders_supplier_id'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_orders_user_id'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('products',
