@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_mail import Message
-from flask_login import login_required
 from src.extensions import db, mail
 from src.models.order import Order
 from src.models.supplier import Supplier
 from src.models.product import Product
+from flask_login import login_required, current_user
 
 orders_bp = Blueprint('orders_bp', __name__)
 

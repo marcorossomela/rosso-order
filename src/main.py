@@ -38,8 +38,7 @@ def create_app():
 
     return app
 
-def app(environ, start_response):
-    return create_app()(environ, start_response)
+app = create_app()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
