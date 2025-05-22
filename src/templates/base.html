@@ -12,7 +12,7 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- PWA Support -->
+  <!-- PWA -->
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#e74c3c">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,7 +28,8 @@
       font-family: 'Poppins', sans-serif;
       background: #f0f2f5;
       margin: 0;
-      padding: 0 0 60px 0; /* spazio per la navbar mobile */
+      padding-bottom: 70px;
+      touch-action: manipulation;
     }
 
     nav {
@@ -71,17 +72,18 @@
 
       .bottom-nav {
         position: fixed;
-        bottom: 1;
+        bottom: 0;
         left: 0;
         width: 100%;
-        background: #d40000;
+        background: #e74c3c;
         display: flex;
         justify-content: space-around;
-        padding: 10px 0;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-        z-index: 1000;
+        align-items: center;
+        padding: 8px 0;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
+        z-index: 999;
       }
 
       .bottom-nav a {
@@ -90,6 +92,7 @@
         text-decoration: none;
       }
 
+      .bottom-nav a.active,
       .bottom-nav a:hover {
         color: #cce5ff;
       }
@@ -111,64 +114,4 @@
       padding: 20px;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    }
-
-    .flash {
-      padding: 0.8rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .flash.success { background-color: #d4edda; color: #155724; }
-    .flash.warning { background-color: #fff3cd; color: #856404; }
-    .flash.danger  { background-color: #f8d7da; color: #721c24; }
-  </style>
-</head>
-<body>
-
-  <!-- Navbar Desktop -->
-  <nav>
-    <div class="logo">Rossopomodoro</div>
-    <div style="display: flex; gap: 20px;">
-      {% if current_user.is_authenticated %}
-        <a href="{{ url_for('auth_bp.dashboard') }}" class="nav-link {% if request.endpoint == 'auth_bp.dashboard' %}active{% endif %}">Dashboard</a>
-        <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="nav-link {% if request.endpoint == 'suppliers_bp.manage_suppliers_products' %}active{% endif %}">Fornitori</a>
-        <a href="{{ url_for('orders_bp.create_order') }}" class="nav-link {% if request.endpoint == 'orders_bp.create_order' %}active{% endif %}">Nuovo Ordine</a>
-        <a href="{{ url_for('orders_bp.recent_orders') }}" class="nav-link {% if request.endpoint == 'orders_bp.recent_orders' %}active{% endif %}">Ordini Recenti</a>
-        <a href="{{ url_for('auth_bp.logout') }}" class="nav-link">Logout</a>
-      {% else %}
-        <a href="{{ url_for('auth_bp.login') }}" class="nav-link">Login</a>
-      {% endif %}
-    </div>
-  </nav>
-
-  <!-- Navbar Mobile a icone -->
-{% if current_user.is_authenticated %}
-<div class="bottom-nav d-md-none">
-  <a href="{{ url_for('auth_bp.dashboard') }}"><i class="fas fa-home"></i></a>
-  <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}"><i class="fas fa-user-plus"></i></a>
-  <a href="{{ url_for('orders_bp.create_order') }}"><i class="fas fa-receipt"></i></a>
-  <a href="{{ url_for('orders_bp.recent_orders') }}"><i class="fas fa-clock"></i></a>
-</div>
-{% endif %}
-
-  <div class="logo-container">
-    <img src="{{ url_for('static', filename='images/rosso_new_logo.png') }}" alt="Rossopomodoro Logo">
-  </div>
-
-  <div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </div>
-
-</body>
-</html>
+      box-shadow: 0 6px 18px
