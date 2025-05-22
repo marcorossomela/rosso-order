@@ -1,0 +1,123 @@
+Perfetto! Ecco una scaletta organizzata di tutto ciò che va creato o modificato per implementare il sistema completo di inventario e food cost nella tua web app Flask:
+
+
+---
+
+1. Nuovi File da Aggiungere
+
+Models
+
+inventory.py:
+
+InventoryItem con: product_id, month, quantity, price, total, location
+
+InventoryMeta: month, location, previous_inventory, sales, credit_notes
+
+
+
+Routes
+
+inventory.py (nuovo Blueprint inventory_bp):
+
+Route GET/POST per visualizzare e aggiornare l'inventario del mese selezionato
+
+Esportazione PDF e CSV
+
+
+
+Templates
+
+inventory.html: layout con:
+
+Dropdown mese
+
+Tabella prodotti
+
+Celle sopra tabella con calcoli food cost
+
+Pulsanti export
+
+
+
+
+---
+
+2. File da Modificare
+
+main.py
+
+Registra nuovo blueprint inventory_bp
+
+
+auth.py
+
+Eventualmente visualizzazione del link “Inventario” nella dashboard se autenticato
+
+
+orders.py
+
+Quando si crea un ordine:
+
+Aggiunge riga in InventoryItem o aggiorna se già presente per quel mese
+
+Somma totale all’InventoryMeta (campo order_total per il mese)
+
+
+
+suppliers.py
+
+Ogni volta che si aggiunge/modifica/elimina un prodotto o prezzo, l’inventario riflette automaticamente i nuovi valori per il mese corrente.
+
+
+recent_orders.html
+
+Aggiungi:
+
+Dettagli per ogni ordine: data, fornitore, lista item, subtotali e totale finale
+
+
+
+
+---
+
+3. Extensions e Requirements
+
+requirements.txt
+
+Assicurati che ci siano:
+
+flask, flask_sqlalchemy, flask_migrate, flask_login, pandas, reportlab (per PDF), openpyxl (opzionale per CSV Excel friendly)
+
+
+
+extensions.py
+
+Aggiungi import eventuali se usi nuove librerie o supporti export
+
+
+
+---
+
+4. Migrazioni Database
+
+Una volta creati i nuovi modelli (inventory.py), esegui:
+
+flask db migrate -m "add inventory models"
+flask db upgrade
+
+
+
+---
+
+5. Bonus
+
+Dashboard: puoi mostrare un riepilogo del food cost attuale per ogni mese in una mini tabella
+
+Filtro per location: tutto legato alla current_user.location come già fatto per fornitori e ordini
+
+
+
+---
+
+Se vuoi, posso cominciare io creando i modelli inventory.py oppure partire dal template HTML. Vuoi andare in ordine o iniziare da qualcosa in particolare?
+

@@ -5,6 +5,7 @@ from src.extensions import db, mail
 from src.models.order import Order
 from src.models.supplier import Supplier
 from src.models.product import Product
+from src.models.order_item import OrderItem  # <-- Assicurati che esista
 
 orders_bp = Blueprint('orders_bp', __name__)
 
@@ -26,8 +27,7 @@ def create_order():
             qty = int(request.form.get(f'product_{product.id}', 0))
             if qty > 0:
                 order_items.append({
-                    'name': product.name,
-                    'unit': product.unit,
+                    'product': product,
                     'quantity': qty
                 })
 
@@ -35,19 +35,40 @@ def create_order():
             flash("Nessun prodotto selezionato.", 'warning')
             return redirect(url_for('orders_bp.create_order'))
 
+        # Crea ordine
         new_order = Order(
             supplier_id=supplier_id,
             user_id=current_user.id,
             location=current_user.location
         )
         db.session.add(new_order)
+        db.session.flush()  # Ottiene new_order.id
+
+        # Aggiunge gli OrderItem
+        for item in order_items:
+            order_item = OrderItem(
+                order_id=new_order.id,
+                product_id=item['product'].id,
+                quantity=item['quantity'],
+                unit_price=item['product'].price  # Assicurati che Product abbia `.price`
+            )
+            db.session.add(order_item)
+
         db.session.commit()
 
+        # Email (estrae nome/unit per invio)
+        email_items = [{
+            'name': i['product'].name,
+            'unit': i['product'].unit,
+            'quantity': i['quantity']
+        } for i in order_items]
+
+        # CC email opzionali
         custom_cc = request.form.get("cc_email", "")
         custom_cc = [email.strip() for email in custom_cc.split(",") if email.strip()] if custom_cc else []
 
         try:
-            send_order_email(supplier, order_items, custom_cc)
+            send_order_email(supplier, email_items, custom_cc)
             flash("Ordine inviato con successo!", "success")
         except Exception as e:
             flash(f"Errore invio email: {e}", "danger")
@@ -59,7 +80,10 @@ def create_order():
 @orders_bp.route('/recent-orders')
 @login_required
 def recent_orders():
-    orders = Order.query.filter_by(location=current_user.location).order_by(Order.id.desc()).all()
+    if current_user.is_admin:
+        orders = Order.query.order_by(Order.created_at.desc()).all()
+    else:
+        orders = Order.query.filter_by(location=current_user.location).order_by(Order.created_at.desc()).all()
     return render_template('recent_orders.html', orders=orders)
 
 def send_order_email(supplier, order_items, custom_cc=None):

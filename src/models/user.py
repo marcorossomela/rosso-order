@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 from src.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,7 +11,9 @@ class User(UserMixin, db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text("gen_random_uuid()"))
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
-    location = db.Column(db.String(50), nullable=False)  # Nuovo campo per la città
+    location = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

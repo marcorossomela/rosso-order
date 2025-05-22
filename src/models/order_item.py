@@ -6,5 +6,6 @@ class OrderItem(db.Model):
     order_id = db.Column(db.String(36), db.ForeignKey('orders.id'), primary_key=True)
     product_id = db.Column(db.String(36), db.ForeignKey('products.id'), primary_key=True)
     quantity = db.Column(db.Integer, nullable=False)
+    unit_price = db.Column(db.Float, nullable=False)
 
     product = db.relationship('Product', backref='order_items')

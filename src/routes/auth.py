@@ -39,6 +39,16 @@ def register():
         new_user = User(email=email, location=location)
         new_user.set_password(password)
 
+        # Autorizza automaticamente come admin alcune email
+        admin_emails = [
+            "marco.distefano@rossopizza.com",
+            "lisa.petrello@rossopizza.com",
+            "saverio.damelio@rossopomodoro.com",
+            "marzio.orzano@rossopizza.com"
+        ]
+        if email in admin_emails:
+            new_user.is_admin = True
+
         db.session.add(new_user)
         db.session.commit()
 
@@ -47,17 +57,17 @@ def register():
         return redirect(url_for('auth_bp.dashboard'))
 
     return render_template('register.html')
-
+    
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    logout_user()
+    logout_user()  # Rimuove sessioni attive precedenti
 
     if current_user.is_authenticated:
         return redirect(url_for('auth_bp.dashboard'))
 
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        email = request.form.get('email')
+        password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
 

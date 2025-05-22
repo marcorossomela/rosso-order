@@ -4,7 +4,7 @@
 {% block content %}
 <style>
   .order-list {
-    max-width: 700px;
+    max-width: 800px;
     margin: 40px auto;
     background: white;
     padding: 25px;
@@ -12,52 +12,77 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.1);
   }
 
-  .order-list h2 {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
   .order-item {
     border-bottom: 1px solid #eee;
-    padding: 12px 0;
+    padding: 20px 0;
   }
 
   .order-item:last-child {
     border-bottom: none;
   }
 
-  .order-item strong {
-    color: #e74c3c;
-  }
-
-  .product-list {
+  .product-table {
+    width: 100%;
     margin-top: 10px;
-    padding-left: 20px;
   }
 
-  .product-list li {
+  .product-table th,
+  .product-table td {
     font-size: 0.95rem;
+    padding: 6px 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .total-row {
+    text-align: right;
+    font-weight: bold;
+    padding-top: 8px;
   }
 </style>
 
 <div class="order-list">
-  <h2>Ordini Recenti</h2>
+  <h2 class="text-center">Ordini Recenti</h2>
 
   {% if orders %}
     {% for order in orders %}
       <div class="order-item">
         <p><strong>ID Ordine:</strong> {{ order.id }}</p>
         <p><strong>Fornitore:</strong> {{ order.supplier.name }}</p>
+        <p><strong>Data:</strong> {{ order.created_at.strftime('%d %B %Y %H:%M') }}</p>
 
-        <ul class="product-list">
-          {% for item in order.items %}
-            <li>{{ item.product.name }} — Quantità: {{ item.quantity }}</li>
-          {% endfor %}
-        </ul>
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>Prodotto</th>
+              <th>Quantità</th>
+              <th>Unità</th>
+              <th>Prezzo Unitario</th>
+              <th>Totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set order_total = 0 %}
+            {% for item in order.items %}
+              {% set item_total = item.quantity * item.unit_price %}
+              {% set order_total = order_total + item_total %}
+              <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.product.unit }}</td>
+                <td>${{ "%.2f"|format(item.unit_price) }}</td>
+                <td>${{ "%.2f"|format(item_total) }}</td>
+              </tr>
+            {% endfor %}
+            <tr>
+              <td colspan="4" class="total-row">Totale Ordine:</td>
+              <td class="total-row">${{ "%.2f"|format(order_total) }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     {% endfor %}
   {% else %}
-    <p>Nessun ordine ancora registrato.</p>
+    <p class="text-center">Nessun ordine ancora registrato.</p>
   {% endif %}
 </div>
 {% endblock %}
