@@ -114,24 +114,67 @@
       padding: 20px;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     }
+
+    .flash {
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .flash.success { background-color: #d4edda; color: #155724; }
+    .flash.warning { background-color: #fff3cd; color: #856404; }
+    .flash.danger  { background-color: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
+
+  <!-- Navbar Desktop -->
   <nav>
     <div class="logo">Rossopomodoro</div>
-    <!-- Nav link opzionali desktop -->
+    <div style="display: flex; gap: 20px;">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('auth_bp.dashboard') }}" class="nav-link {% if request.endpoint == 'auth_bp.dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="nav-link {% if request.endpoint == 'suppliers_bp.manage_suppliers_products' %}active{% endif %}">Fornitori</a>
+        <a href="{{ url_for('orders_bp.create_order') }}" class="nav-link {% if request.endpoint == 'orders_bp.create_order' %}active{% endif %}">Nuovo Ordine</a>
+        <a href="{{ url_for('orders_bp.recent_orders') }}" class="nav-link {% if request.endpoint == 'orders_bp.recent_orders' %}active{% endif %}">Ordini Recenti</a>
+        <a href="{{ url_for('auth_bp.logout') }}" class="nav-link">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth_bp.login') }}" class="nav-link">Login</a>
+      {% endif %}
+    </div>
   </nav>
 
-  <div class="container">
-    {% block content %}
-    {% endblock %}
+  <!-- Navbar Mobile -->
+  {% if current_user.is_authenticated %}
+  <div class="bottom-nav d-md-none">
+    <a href="{{ url_for('auth_bp.dashboard') }}" class="{% if request.endpoint == 'auth_bp.dashboard' %}active{% endif %}"><i class="fas fa-home"></i></a>
+    <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="{% if request.endpoint == 'suppliers_bp.manage_suppliers_products' %}active{% endif %}"><i class="fas fa-user-plus"></i></a>
+    <a href="{{ url_for('orders_bp.create_order') }}" class="{% if request.endpoint == 'orders_bp.create_order' %}active{% endif %}"><i class="fas fa-receipt"></i></a>
+    <a href="{{ url_for('orders_bp.recent_orders') }}" class="{% if request.endpoint == 'orders_bp.recent_orders' %}active{% endif %}"><i class="fas fa-clock"></i></a>
+    <a href="{{ url_for('auth_bp.logout') }}"><i class="fas fa-sign-out-alt"></i></a>
+  </div>
+  {% endif %}
+
+  <!-- Logo -->
+  <div class="logo-container">
+    <img src="{{ url_for('static', filename='images/rosso_new_logo.png') }}" alt="Rossopomodoro Logo">
   </div>
 
-  <div class="bottom-nav">
-    <a href="/dashboard" class="nav-link"><i class="fa fa-home"></i></a>
-    <a href="/logout" class="nav-link"><i class="fa fa-sign-out-alt"></i></a>
+  <!-- Contenuto principale -->
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
   </div>
+
 </body>
 </html>
