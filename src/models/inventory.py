@@ -1,6 +1,7 @@
 from src.extensions import db
 from datetime import datetime
 import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 class InventoryItem(db.Model):
     __tablename__ = 'inventory_items'
@@ -12,6 +13,11 @@ class InventoryItem(db.Model):
     unit_price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Float, nullable=False, default=0)
     location = db.Column(db.String(50), nullable=False)
+    user_id = db.Column(
+    UUID(as_uuid=True),
+    db.ForeignKey('users.id', name='fk_inventoryitem_user_id'),
+    nullable=True
+)
 
     def total(self):
         return round(self.unit_price * self.quantity, 2)
@@ -27,6 +33,11 @@ class InventoryMeta(db.Model):
     credit_notes = db.Column(db.Float, default=0)
     monthly_sales = db.Column(db.Float, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(
+    UUID(as_uuid=True),
+    db.ForeignKey('users.id', name='fk_inventorymeta_user_id'),
+    nullable=True
+)
 
     def food_cost(self):
         if self.monthly_sales > 0:
