@@ -11,7 +11,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Email
+    # Email config
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
@@ -19,4 +19,8 @@ class Config:
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
-DEFAULT_CC_EMAILS = ["manager@rossopizza.com", "contabile@rossopizza.com"]
+    # Default destinatari in copia
+    DEFAULT_CC_EMAILS = [
+        "manager@rossopizza.com",
+        "contabile@rossopizza.com"
+    ]

@@ -2,28 +2,89 @@
 {% block title %}Ordini{% endblock %}
 
 {% block content %}
-<div class="form-header">
-  <h1>Crea un Nuovo Ordine</h1>
-</div>
+<style>
+  form {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  form h1, form h3 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+  }
+
+  select, input[type="number"], input[type="email"] {
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+  }
+
+  table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #c0392b;
+  }
+
+  .icon-btn {
+    font-size: 1.1rem;
+    text-decoration: none;
+    margin: 0 5px;
+  }
+</style>
 
 <form method="POST" action="{{ url_for('orders_bp.create_order') }}">
-  <div>
-    <label for="supplier_id">Fornitore:</label>
-    <select name="supplier_id" id="supplier_id" required>
-      <option value="">Seleziona fornitore</option>
-      {% for supplier in suppliers %}
-        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <hr>
+  <h1>Crea un Nuovo Ordine</h1>
+
+  <label for="supplier_id">Fornitore:</label>
+  <select name="supplier_id" id="supplier_id" required>
+    <option value="">Seleziona fornitore</option>
+    {% for supplier in suppliers %}
+      <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+    {% endfor %}
+  </select>
+
   <h3>Prodotti</h3>
-  <table style="width:100%; border-collapse: collapse;">
+  <table>
     <thead>
       <tr>
         <th>Prodotto</th>
         <th>Unità</th>
         <th>Quantità</th>
+        <th>Prezzo</th>
         <th>Modifica</th>
         <th>Elimina</th>
       </tr>
@@ -34,21 +95,25 @@
         <td>{{ product.name }}</td>
         <td>{{ product.unit }}</td>
         <td>
-          <input type="number" name="quantities[{{ product.id }}]" min="0" value="0" style="width:60px;">
+          <input type="number" name="quantities[{{ product.id }}]" min="0" value="0">
         </td>
         <td>
-          <a href="{{ url_for('supplier_bp.edit_product', product_id=product.id) }}">✏️</a>
+          <input type="number" name="prices[{{ product.id }}]" step="0.01" min="0" value="0.00">
         </td>
         <td>
-          <a href="{{ url_for('supplier_bp.delete_product', product_id=product.id) }}" onclick="return confirm('Sicuro di eliminare il prodotto?');">❌</a>
+          <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}" class="icon-btn">✏️</a>
+        </td>
+        <td>
+          <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=product.supplier_id) }}" onclick="return confirm('Sicuro di eliminare il fornitore?');" class="icon-btn">❌</a>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  <hr>
+
   <label for="cc_email">CC (in copia):</label>
-  <input type="email" name="cc_email" id="cc_email" placeholder="Inserisci un'email per la copia">
-  <button type="submit" style="margin-top: 16px;">Invia Ordine</button>
+  <input type="email" name="cc_email" id="cc_email" placeholder="Email in copia (opzionale)">
+
+  <button type="submit">Invia Ordine</button>
 </form>
 {% endblock %}

@@ -10,6 +10,7 @@ from src.routes.auth import auth_bp, login_manager
 from src.routes.suppliers import suppliers_bp
 from src.routes.orders import orders_bp
 from src.routes.inventory import inventory_bp
+from src.models import user, supplier, product, order, order_item
 
 def create_app(*args, **kwargs):  # accetta argomenti
     app = Flask(__name__, template_folder='templates', static_folder='static')

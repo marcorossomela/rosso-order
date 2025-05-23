@@ -5,7 +5,7 @@ from src.extensions import db, mail
 from src.models.order import Order
 from src.models.supplier import Supplier
 from src.models.product import Product
-from src.models.order_item import OrderItem  # <-- Assicurati che esista
+from src.models.order_item import OrderItem
 
 orders_bp = Blueprint('orders_bp', __name__)
 
@@ -25,10 +25,12 @@ def create_order():
         order_items = []
         for product in supplier.products:
             qty = int(request.form.get(f'product_{product.id}', 0))
+            price = float(request.form.get(f'price_{product.id}', 0))
             if qty > 0:
                 order_items.append({
                     'product': product,
-                    'quantity': qty
+                    'quantity': qty,
+                    'price': price
                 })
 
         if not order_items:
@@ -42,7 +44,7 @@ def create_order():
             location=current_user.location
         )
         db.session.add(new_order)
-        db.session.flush()  # Ottiene new_order.id
+        db.session.flush()
 
         # Aggiunge gli OrderItem
         for item in order_items:
@@ -50,20 +52,19 @@ def create_order():
                 order_id=new_order.id,
                 product_id=item['product'].id,
                 quantity=item['quantity'],
-                unit_price=item['product'].price  # Assicurati che Product abbia `.price`
+                unit_price=item['price']
             )
             db.session.add(order_item)
 
         db.session.commit()
 
-        # Email (estrae nome/unit per invio)
         email_items = [{
             'name': i['product'].name,
             'unit': i['product'].unit,
-            'quantity': i['quantity']
+            'quantity': i['quantity'],
+            'price': i['price']
         } for i in order_items]
 
-        # CC email opzionali
         custom_cc = request.form.get("cc_email", "")
         custom_cc = [email.strip() for email in custom_cc.split(",") if email.strip()] if custom_cc else []
 

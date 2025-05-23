@@ -1,7 +1,7 @@
-{% extends "base.html" %} {% block title %}Modifica Fornitore{% endblock %}
+{% extends "base.html" %}
+{% block title %}Modifica Fornitore{% endblock %}
 
 {% block content %}
-
 <style>
   .form-container {
     background: white;
@@ -39,41 +39,68 @@
   .product-row {
     display: flex;
     gap: 10px;
+    align-items: center;
     margin-bottom: 10px;
   }
 
   .product-row input {
     flex: 1;
   }
-</style><div class="form-container">
+
+  .edit-link {
+    padding: 6px 10px;
+    background: #f2f2f2;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .edit-link:hover {
+    background: #e0e0e0;
+  }
+
+  .cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #888;
+    text-decoration: underline;
+  }
+</style>
+
+<div class="form-container">
   <h2>Modifica Fornitore</h2>
   <form method="POST">
     <input type="text" name="name" value="{{ supplier.name }}" placeholder="Nome Fornitore" required>
     <input type="email" name="email" value="{{ supplier.email }}" placeholder="Email" required>
-    <input type="text" name="phone" value="{{ supplier.phone }}" placeholder="Telefono"><hr>
-<h4>Prodotti Esistenti</h4>
-{% for product in supplier.products %}
-  <div class="product-row">
-    <input type="text" value="{{ product.name }} ({{ product.unit }})" disabled>
-    <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}">Modifica</a>
-  </div>
-{% endfor %}
+    <input type="text" name="phone" value="{{ supplier.phone }}" placeholder="Telefono">
 
-<hr>
-<h4>Aggiungi Nuovi Prodotti</h4>
-<div id="product-list">
-  <div class="product-row">
-    <input type="text" name="product_name[]" placeholder="Nome prodotto">
-    <input type="text" name="product_unit[]" placeholder="Unità (es. Kg)">
-  </div>
-</div>
-<button type="button" onclick="addProduct()">+ Aggiungi un altro prodotto</button>
+    <hr>
+    <h4>Prodotti Esistenti</h4>
+    {% for product in supplier.products %}
+      <div class="product-row">
+        <input type="text" value="{{ product.name }} ({{ product.unit }})" disabled>
+        <a href="{{ url_for('suppliers_bp.edit_product', product_id=product.id) }}" class="edit-link">Modifica</a>
+      </div>
+    {% endfor %}
 
-<button type="submit">Salva Modifiche</button>
+    <hr>
+    <h4>Aggiungi Nuovi Prodotti</h4>
+    <div id="product-list">
+      <div class="product-row">
+        <input type="text" name="product_name[]" placeholder="Nome prodotto">
+        <input type="text" name="product_unit[]" placeholder="Unità (es. Kg)">
+      </div>
+    </div>
+    <button type="button" onclick="addProduct()">+ Aggiungi un altro prodotto</button>
 
+    <button type="submit">Salva Modifiche</button>
   </form>
-  <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}">Annulla</a>
-</div><script>
+
+  <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="cancel-link">Annulla</a>
+</div>
+
+<script>
 function addProduct() {
   const list = document.getElementById('product-list');
   const row = document.createElement('div');
