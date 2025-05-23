@@ -10,27 +10,35 @@ from src.routes.auth import auth_bp, login_manager
 from src.routes.suppliers import suppliers_bp
 from src.routes.orders import orders_bp
 from src.routes.inventory import inventory_bp
-from src.models import user, supplier, product, order, order_item
+from src.routes.locations import locations_bp  # NUOVA ROUTE
+from src.models import user, supplier, product, order, order_item, location, inventory  # NUOVO MODELLO
 
-def create_app(*args, **kwargs):  # accetta argomenti
+def create_app(*args, **kwargs):
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.config.from_object(Config)
 
     if not os.path.exists(app.instance_path):
         os.makedirs(app.instance_path)
 
+    # Inizializza estensioni
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
     login_manager.init_app(app)
 
+    # Registra blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(suppliers_bp, url_prefix="/suppliers")
     app.register_blueprint(orders_bp, url_prefix="/orders")
     app.register_blueprint(inventory_bp, url_prefix="/inventory")
+    app.register_blueprint(locations_bp, url_prefix="/locations")  # NUOVA ROUTE
 
+    # Importa modelli per le migrazioni
     with app.app_context():
-        from src.models import user, supplier, product, order
+        from src.models import (
+            user, supplier, product, order, order_item, 
+            location, inventory  # NUOVO MODELLO
+        )
 
     return app
 

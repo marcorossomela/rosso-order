@@ -1,15 +1,255 @@
 <!DOCTYPE html>
 <html>
-  <body style="font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px;">
-    <div style="background:#ffffff;padding:20px;border:1px solid #ddd;border-radius:8px; max-width:600px; margin:auto;">
-      <h2 style="color:#e74c3c;">Ordine per {{ supplier.name }}</h2>
-      <ul style="list-style:none; padding:0;">
-        {% for item in order_items %}
-          <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
-            <strong>{{ item.name }}</strong> – {{ item.quantity }} {{ item.unit }}
-          </li>
-        {% endfor %}
-      </ul>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordine per {{ supplier.name }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .location-info {
+      background: #e8f5e8;
+      border-left: 4px solid #28a745;
+      padding: 15px 20px;
+      margin-bottom: 25px;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .location-info h3 {
+      margin: 0 0 8px 0;
+      color: #155724;
+      font-size: 1.1rem;
+    }
+    
+    .location-address {
+      color: #155724;
+      font-weight: 500;
+    }
+    
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .order-table th {
+      background: #343a40;
+      color: white;
+      padding: 15px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    .order-table td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .order-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    .order-table tr:hover {
+      background-color: #e9ecef;
+    }
+    
+    .product-name {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .quantity {
+      font-weight: 600;
+      color: #e74c3c;
+      text-align: center;
+    }
+    
+    .price {
+      font-weight: 600;
+      color: #28a745;
+      text-align: right;
+    }
+    
+    .notes-section {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    
+    .notes-section h3 {
+      margin: 0 0 10px 0;
+      color: #856404;
+      font-size: 1.1rem;
+    }
+    
+    .notes-content {
+      color: #856404;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    
+    .footer {
+      background: #f8f9fa;
+      padding: 20px 30px;
+      border-top: 1px solid #dee2e6;
+      text-align: center;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    
+    .footer strong {
+      color: #495057;
+    }
+    
+    .total-row {
+      background: #e74c3c !important;
+      color: white;
+      font-weight: 700;
+    }
+    
+    .total-row td {
+      padding: 15px 12px;
+      border: none;
+    }
+    
+    @media (max-width: 600px) {
+      .email-container {
+        margin: 10px;
+      }
+      
+      .content, .header, .footer {
+        padding: 20px;
+      }
+      
+      .order-table th, .order-table td {
+        padding: 8px 6px;
+        font-size: 0.9rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🍕 Nuovo Ordine Rossopomodoro</h1>
+      <p>Ordine per {{ supplier.name }}</p>
     </div>
-  </body>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Location Info -->
+      {% if location %}
+      <div class="location-info">
+        <h3>📍 Location di Consegna</h3>
+        <div class="location-address">
+          <strong>{{ location.name }}</strong><br>
+          {{ location.address }}
+        </div>
+      </div>
+      {% else %}
+      <div class="location-info">
+        <h3>📍 Città</h3>
+        <div class="location-address">{{ location_name }}</div>
+      </div>
+      {% endif %}
+
+      <!-- Order Items -->
+      <h3 style="margin-bottom: 15px; color: #333;">📦 Dettagli Ordine</h3>
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th>Prodotto</th>
+            <th style="text-align: center;">Quantità</th>
+            <th style="text-align: right;">Prezzo Unit.</th>
+            <th style="text-align: right;">Totale</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set order_total = 0 %}
+          {% for item in order_items %}
+            {% set item_total = item.quantity * item.price %}
+            {% set order_total = order_total + item_total %}
+            <tr>
+              <td class="product-name">{{ item.name }} ({{ item.unit }})</td>
+              <td class="quantity">{{ item.quantity }}</td>
+              <td class="price">${{ "%.2f"|format(item.price) }}</td>
+              <td class="price">${{ "%.2f"|format(item_total) }}</td>
+            </tr>
+          {% endfor %}
+          <tr class="total-row">
+            <td colspan="3"><strong>TOTALE ORDINE</strong></td>
+            <td style="text-align: right;"><strong>${{ "%.2f"|format(order_total) }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Notes Section -->
+      {% if notes and notes.strip() %}
+      <div class="notes-section">
+        <h3>📝 Note Speciali</h3>
+        <div class="notes-content">{{ notes }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        <strong>Ordinato da:</strong> {{ user_email }}<br>
+        <strong>Data:</strong> {{ moment().format('DD/MM/YYYY HH:mm') if moment else 'Oggi' }}<br>
+        <br>
+        <em>Questo ordine è stato generato automaticamente dal sistema Rossopomodoro.</em><br>
+        Per qualsiasi domanda, rispondi direttamente a questa email.
+      </p>
+    </div>
+  </div>
+</body>
 </html>

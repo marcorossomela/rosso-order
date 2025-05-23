@@ -2,132 +2,369 @@
 {% block title %}Crea Ordine{% endblock %}
 
 {% block content %}
-  <style>
-    .form-wrapper {
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 25px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    }
+<style>
+  .form-wrapper {
+    max-width: 100%;
+    margin: 10px;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
 
-    .form-wrapper h2 {
-      text-align: center;
+  .form-wrapper h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e74c3c;
+    font-weight: 600;
+    font-size: 1.4rem;
+  }
+
+  /* MOBILE FIRST APPROACH */
+  .form-row {
+    display: block;
+    margin-bottom: 15px;
+  }
+
+  .form-row > div {
+    margin-bottom: 15px;
+  }
+
+  /* Desktop: 2 colonne */
+  @media (min-width: 768px) {
+    .form-wrapper {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 30px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
       margin-bottom: 20px;
     }
-
-    form label {
-      display: block;
-      margin-top: 1rem;
-      margin-bottom: 0.3rem;
-      font-weight: 600;
+    
+    .form-row > div {
+      margin-bottom: 0;
     }
+  }
 
-    form input, form select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 1rem;
-    }
+  form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+  }
 
-    .product-block {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-    }
+  form input, form select, form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px; /* Previene zoom su iOS */
+    transition: border-color 0.3s ease;
+    -webkit-appearance: none; /* Remove iOS styling */
+    appearance: none;
+  }
 
-    .product-block h4 {
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-    }
+  form input:focus, form select:focus, form textarea:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+  }
 
+  .product-block {
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    border: 2px solid #dee2e6;
+  }
+
+  .product-block h4 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #e74c3c;
+    border-bottom: 2px solid #e74c3c;
+    padding-bottom: 8px;
+  }
+
+  /* MOBILE: Stack verticalmente */
+  .product-line {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .product-line label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+    display: block;
+  }
+
+  .product-inputs {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* Desktop: Layout orizzontale */
+  @media (min-width: 768px) {
     .product-line {
-      display: flex;
+      display: grid;
+      grid-template-columns: 2fr 100px 120px;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      gap: 8px;
-    }
-
-    .product-line label {
-      flex: 1;
-    }
-
-    .product-line select,
-    .product-line input[type="number"] {
-      width: 80px;
-    }
-
-    button {
-      margin-top: 20px;
-      width: 100%;
+      gap: 15px;
       padding: 12px;
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      cursor: pointer;
     }
-
-    button:hover {
-      background-color: #c0392b;
+    
+    .product-line label {
+      margin-bottom: 0;
     }
-  </style>
+    
+    .product-inputs {
+      display: contents;
+    }
+  }
 
-  <div class="form-wrapper">
-    <h2>Crea e Invia Ordine</h2>
+  .notes-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff9e6;
+    border-radius: 12px;
+    border-left: 4px solid #ffc107;
+  }
 
-    <form method="POST" action="{{ url_for('orders_bp.create_order') }}">
-      <label for="supplier_id">Fornitore</label>
-      <select name="supplier_id" id="supplier_id" onchange="showProducts()" required>
-        <option value="">Seleziona Fornitore</option>
-        {% for supplier in suppliers %}
-          <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-        {% endfor %}
-      </select>
+  .location-info {
+    background: #e8f5e8;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #28a745;
+    font-size: 0.9rem;
+  }
 
-      {% for supplier in suppliers %}
-        <div class="product-block" id="products-{{ supplier.id }}" style="display: none;">
-          <h4>Prodotti per {{ supplier.name }}</h4>
-          {% for product in supplier.products %}
-            <div class="product-line">
-              <label>{{ product.name }} ({{ product.unit }})</label>
-              <select name="product_{{ product.id }}">
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    /* Migliora tap su mobile */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  button:hover, button:active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+  }
+
+  /* MOBILE: Bottone fisso in basso */
+  @media (max-width: 767px) {
+    .mobile-submit {
+      position: fixed;
+      bottom: 80px; /* Sopra la bottom nav */
+      left: 10px;
+      right: 10px;
+      z-index: 100;
+      margin-top: 0;
+      border-radius: 25px;
+      padding: 18px;
+      font-size: 1.2rem;
+      box-shadow: 0 8px 30px rgba(231, 76, 60, 0.4);
+    }
+    
+    .form-wrapper {
+      margin-bottom: 120px; /* Spazio per bottone fisso */
+    }
+  }
+
+  /* Loading state per il bottone */
+  button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Migliora select su mobile */
+  select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  /* Animazioni touch */
+  .product-line:active,
+  .location-info:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Miglior contrasto per accessibilità */
+  ::placeholder {
+    color: #9ca3af;
+  }
+
+  /* Focus più visibile su mobile */
+  @media (max-width: 767px) {
+    input:focus, select:focus, textarea:focus {
+      border-color: #e74c3c;
+      box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15);
+    }
+  }
+</style>
+
+<div class="form-wrapper">
+  <h2><i class="fas fa-shopping-cart me-2"></i>Crea e Invia Ordine</h2>
+
+  <form method="POST" action="{{ url_for('orders_bp.create_order') }}" id="orderForm">
+    <div class="form-row">
+      <div>
+        <label for="supplier_id"><i class="fas fa-truck me-1"></i>Fornitore</label>
+        <select name="supplier_id" id="supplier_id" onchange="showProducts()" required>
+          <option value="">Seleziona Fornitore</option>
+          {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="location_id"><i class="fas fa-map-marker-alt me-1"></i>Location</label>
+        <select name="location_id" id="location_id">
+          <option value="">Seleziona Location (opzionale)</option>
+          {% for location in locations %}
+            <option value="{{ location.id }}">{{ location.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    {% if locations %}
+    <div class="location-info">
+      <strong><i class="fas fa-info-circle me-1"></i>Suggerimento:</strong> 
+      Seleziona una location per includere l'indirizzo preciso nell'email.
+    </div>
+    {% endif %}
+
+    {% for supplier in suppliers %}
+      <div class="product-block" id="products-{{ supplier.id }}" style="display: none;">
+        <h4><i class="fas fa-boxes me-2"></i>Prodotti - {{ supplier.name }}</h4>
+        {% for product in supplier.products %}
+          <div class="product-line">
+            <label>{{ product.name }} ({{ product.unit }})</label>
+            <div class="product-inputs">
+              <select name="product_{{ product.id }}" onchange="updateTotal()">
                 <option value="0">0</option>
-                {% for i in range(1, 21) %}
+                {% for i in range(1, 31) %}
                   <option value="{{ i }}">{{ i }}</option>
                 {% endfor %}
               </select>
-              <input type="number" step="0.01" name="price_{{ product.id }}" placeholder="$" required>
+              <input type="number" 
+                     step="0.01" 
+                     name="price_{{ product.id }}" 
+                     placeholder="Prezzo $" 
+                     value="{{ product.price or '' }}"
+                     onchange="updateTotal()"
+                     required>
             </div>
-          {% endfor %}
-        </div>
-      {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
 
-      <label for="cc_email">CC (opzionale)</label>
-      <input type="text" name="cc_email" id="cc_email" placeholder="Email in CC separate da virgola (opzionali)">
+    <div class="notes-section">
+      <label for="notes"><i class="fas fa-sticky-note me-1"></i>Note (opzionale)</label>
+      <textarea name="notes" 
+                id="notes" 
+                rows="3" 
+                placeholder="Note speciali per il fornitore..."></textarea>
+    </div>
 
-      <button type="submit">Invia Ordine</button>
-    </form>
-  </div>
+    <label for="cc_email"><i class="fas fa-envelope me-1"></i>CC Email (opzionale)</label>
+    <input type="text" 
+           name="cc_email" 
+           id="cc_email" 
+           placeholder="Email separate da virgola">
 
-  <script>
-    function showProducts() {
-      const supplierId = document.getElementById('supplier_id').value;
-      const blocks = document.querySelectorAll('.product-block');
-      blocks.forEach(block => block.style.display = 'none');
+    <button type="submit" class="mobile-submit" id="submitBtn">
+      <i class="fas fa-paper-plane me-2"></i><span id="btnText">Invia Ordine</span>
+    </button>
+  </form>
+</div>
 
-      if (supplierId) {
-        const selectedBlock = document.getElementById('products-' + supplierId);
-        if (selectedBlock) selectedBlock.style.display = 'block';
-      }
-    }
-  </script>
+<script>
+function showProducts() {
+  const supplierId = document.getElementById('supplier_id').value;
+  const blocks = document.querySelectorAll('.product-block');
+  blocks.forEach(block => block.style.display = 'none');
+
+  if (supplierId) {
+    const selectedBlock = document.getElementById('products-' + supplierId);
+    if (selectedBlock) selectedBlock.style.display = 'block';
+  }
+  updateTotal();
+}
+
+// Calcola totale in tempo reale
+function updateTotal() {
+  // Implementa calcolo totale se necessario
+  console.log('Total updated');
+}
+
+// Previeni double submit
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  
+  submitBtn.disabled = true;
+  btnText.textContent = 'Invio in corso...';
+  
+  // Re-enable dopo 5 secondi in caso di errore
+  setTimeout(() => {
+    submitBtn.disabled = false;
+    btnText.textContent = 'Invia Ordine';
+  }, 5000);
+});
+
+// Auto-focus migliorato per mobile
+document.addEventListener('DOMContentLoaded', function() {
+  // Non auto-focus su mobile per evitare zoom indesiderato
+  if (window.innerWidth >= 768) {
+    document.getElementById('supplier_id').focus();
+  }
+});
+
+// Smooth scroll quando si seleziona fornitore
+function smoothScrollToProducts() {
+  const activeBlock = document.querySelector('.product-block[style*="block"]');
+  if (activeBlock && window.innerWidth <= 767) {
+    activeBlock.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+  }
+}
+
+document.getElementById('supplier_id').addEventListener('change', function() {
+  setTimeout(smoothScrollToProducts, 100);
+});
+</script>
 {% endblock %}

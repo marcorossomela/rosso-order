@@ -3,86 +3,695 @@
 
 {% block content %}
 <style>
-  .order-list {
-    max-width: 800px;
-    margin: 40px auto;
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  .orders-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 25px 20px;
+    border-radius: 15px;
+    margin: 10px 0 25px 0;
+    text-align: center;
   }
 
-  .order-item {
-    border-bottom: 1px solid #eee;
-    padding: 20px 0;
+  .orders-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
   }
 
-  .order-item:last-child {
-    border-bottom: none;
-  }
-
-  .product-table {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .product-table th,
-  .product-table td {
+  .orders-header p {
+    margin: 8px 0 0 0;
+    opacity: 0.9;
     font-size: 0.95rem;
-    padding: 6px 10px;
-    border-bottom: 1px solid #f0f0f0;
   }
 
-  .total-row {
-    text-align: right;
-    font-weight: bold;
-    padding-top: 8px;
+  @media (min-width: 768px) {
+    .orders-header {
+      margin: 0 auto 30px;
+      max-width: 1000px;
+      padding: 30px;
+    }
+    
+    .orders-header h2 {
+      font-size: 2rem;
+    }
+  }
+
+  /* Order Cards */
+  .order-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    margin: 10px 0 20px 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  @media (min-width: 768px) {
+    .order-card {
+      max-width: 1000px;
+      margin: 0 auto 25px;
+      border-radius: 20px;
+    }
+    
+    .order-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+  }
+
+  .order-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  .order-meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 768px) {
+    .order-meta {
+      grid-template-columns: 2fr 1fr 1fr;
+      align-items: center;
+    }
+  }
+
+  .supplier-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .supplier-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+  }
+
+  .supplier-icon {
+    width: 40px;
+    height: 40px;
+    background: #e74c3c;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+  }
+
+  .order-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  @media (min-width: 768px) {
+    .order-date {
+      margin-top: 0;
+      justify-content: center;
+    }
+  }
+
+  .order-total-badge {
+    background: #28a745;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  @media (min-width: 768px) {
+    .order-total-badge {
+      margin-top: 0;
+      align-self: center;
+    }
+  }
+
+  .location-info {
+    background: #e8f5e8;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #155724;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .notes-info {
+    background: #fff3cd;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #856404;
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* Products Section */
+  .products-section {
+    padding: 20px;
+  }
+
+  .products-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Mobile: Vertical cards for products */
+  .products-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .product-item {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .product-item:hover {
+    border-color: #e74c3c;
+    background: white;
+  }
+
+  .product-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
+  .product-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .detail-label {
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+  .detail-value {
+    color: #333;
+    font-weight: 600;
+  }
+
+  .product-total {
+    background: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 10px;
+    grid-column: 1 / -1;
+  }
+
+  /* Desktop: Table view for products */
+  @media (min-width: 768px) {
+    .products-list {
+      display: block;
+    }
+
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .products-table th {
+      background: #343a40;
+      color: white;
+      padding: 15px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .products-table td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+      font-size: 0.9rem;
+    }
+
+    .products-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .products-table tr:hover {
+      background-color: #e9ecef;
+    }
+
+    .total-row {
+      background: #e74c3c !important;
+      color: white;
+      font-weight: 700;
+    }
+
+    .total-row td {
+      padding: 15px 12px;
+      border: none;
+    }
+
+    .product-item {
+      display: none;
+    }
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    color: #6c757d;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    margin: 20px 0;
+  }
+
+  @media (min-width: 768px) {
+    .empty-state {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 80px 40px;
+    }
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+  }
+
+  .empty-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 10px;
+  }
+
+  .empty-subtitle {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+
+  .empty-action {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .empty-action:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+  }
+
+  /* Filter/Search Bar */
+  .filter-bar {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 10px 0 20px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  @media (min-width: 768px) {
+    .filter-bar {
+      max-width: 1000px;
+      margin: 0 auto 25px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    border: 2px solid #e9ecef;
+    background: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .filter-btn.active {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+  }
+
+  .filter-btn:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 0.9rem;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+  }
+
+  /* Stats Summary */
+  .stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin: 10px 0 25px 0;
+  }
+
+  @media (min-width: 768px) {
+    .stats-summary {
+      max-width: 1000px;
+      margin: 0 auto 30px;
+    }
+  }
+
+  .stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e74c3c;
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 </style>
 
-<div class="order-list">
-  <h2 class="text-center">Ordini Recenti</h2>
-
-  {% if orders %}
-    {% for order in orders %}
-      <div class="order-item">
-        <p><strong>ID Ordine:</strong> {{ order.id }}</p>
-        <p><strong>Fornitore:</strong> {{ order.supplier.name }}</p>
-        <p><strong>Data:</strong> {{ order.created_at.strftime('%d %B %Y %H:%M') }}</p>
-
-        <table class="product-table">
-          <thead>
-            <tr>
-              <th>Prodotto</th>
-              <th>Quantità</th>
-              <th>Unità</th>
-              <th>Prezzo Unitario</th>
-              <th>Totale</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% set order_total = 0 %}
-            {% for item in order.items %}
-              {% set item_total = item.quantity * item.unit_price %}
-              {% set order_total = order_total + item_total %}
-              <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.product.unit }}</td>
-                <td>${{ "%.2f"|format(item.unit_price) }}</td>
-                <td>${{ "%.2f"|format(item_total) }}</td>
-              </tr>
-            {% endfor %}
-            <tr>
-              <td colspan="4" class="total-row">Totale Ordine:</td>
-              <td class="total-row">${{ "%.2f"|format(order_total) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p class="text-center">Nessun ordine ancora registrato.</p>
-  {% endif %}
+<div class="orders-header">
+  <h2><i class="fas fa-clipboard-list me-2"></i>Ordini Recenti</h2>
+  <p>Storico completo dei tuoi ordini con dettagli</p>
 </div>
+
+{% if orders %}
+  <!-- Stats Summary -->
+  <div class="stats-summary">
+    <div class="stat-card">
+      <div class="stat-number">{{ orders|length }}</div>
+      <div class="stat-label">Ordini Totali</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">
+        {% set total_amount = 0 %}
+        {% for order in orders %}
+          {% set total_amount = total_amount + order.total() %}
+        {% endfor %}
+        ${{ "%.0f"|format(total_amount) }}
+      </div>
+      <div class="stat-label">Valore Totale</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">
+        {% set unique_suppliers = [] %}
+        {% for order in orders %}
+          {% if order.supplier.name not in unique_suppliers %}
+            {% set _ = unique_suppliers.append(order.supplier.name) %}
+          {% endif %}
+        {% endfor %}
+        {{ unique_suppliers|length }}
+      </div>
+      <div class="stat-label">Fornitori</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">
+        {% set current_month_orders = [] %}
+        {% for order in orders %}
+          {% if order.created_at.month == moment().month if moment else order.created_at.month == 12 %}
+            {% set _ = current_month_orders.append(order) %}
+          {% endif %}
+        {% endfor %}
+        {{ current_month_orders|length }}
+      </div>
+      <div class="stat-label">Questo Mese</div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <input type="text" placeholder="🔍 Cerca per fornitore o prodotto..." id="searchInput">
+    </div>
+    <div class="filter-controls">
+      <button class="filter-btn active" onclick="filterOrders('all')">Tutti</button>
+      <button class="filter-btn" onclick="filterOrders('today')">Oggi</button>
+      <button class="filter-btn" onclick="filterOrders('week')">Settimana</button>
+      <button class="filter-btn" onclick="filterOrders('month')">Mese</button>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  {% for order in orders %}
+    <div class="order-card" data-supplier="{{ order.supplier.name|lower }}" data-date="{{ order.created_at.isoformat() }}">
+      <div class="order-header">
+        <div class="order-meta">
+          <div class="supplier-info">
+            <div class="supplier-icon">
+              <i class="fas fa-store"></i>
+            </div>
+            <div>
+              <div class="supplier-name">{{ order.supplier.name }}</div>
+              <div class="order-date">
+                <i class="fas fa-calendar me-1"></i>
+                {{ order.created_at.strftime('%d/%m/%Y alle %H:%M') }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="order-total-badge">
+            ${{ "%.2f"|format(order.total()) }}
+          </div>
+        </div>
+
+        {% if order.location_detail %}
+        <div class="location-info">
+          <i class="fas fa-map-marker-alt"></i>
+          <span><strong>{{ order.location_detail.name }}</strong> - {{ order.location_detail.address }}</span>
+        </div>
+        {% elif order.location %}
+        <div class="location-info">
+          <i class="fas fa-city"></i>
+          <span>{{ order.location }}</span>
+        </div>
+        {% endif %}
+
+        {% if order.notes and order.notes.strip() %}
+        <div class="notes-info">
+          <i class="fas fa-sticky-note"></i>
+          <span>{{ order.notes }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="products-section">
+        <div class="products-title">
+          <i class="fas fa-boxes"></i>
+          Prodotti Ordinati ({{ order.items|length }})
+        </div>
+
+        <!-- Mobile: Card View -->
+        <div class="products-list d-md-none">
+          {% for item in order.items %}
+            <div class="product-item">
+              <div class="product-name">
+                {{ item.product_name or item.product.name }} ({{ item.product_unit or item.product.unit }})
+              </div>
+              <div class="product-details">
+                <div class="detail-item">
+                  <span class="detail-label">Quantità:</span>
+                  <span class="detail-value">{{ item.quantity }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Prezzo Unit.:</span>
+                  <span class="detail-value">${{ "%.2f"|format(item.unit_price) }}</span>
+                </div>
+              </div>
+              <div class="product-total">
+                Totale: ${{ "%.2f"|format(item.quantity * item.unit_price) }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Desktop: Table View -->
+        <div class="d-none d-md-block">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Prodotto</th>
+                <th style="text-align: center;">Quantità</th>
+                <th style="text-align: right;">Prezzo Unit.</th>
+                <th style="text-align: right;">Totale</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items %}
+                <tr>
+                  <td>
+                    <strong>{{ item.product_name or item.product.name }}</strong><br>
+                    <small class="text-muted">{{ item.product_unit or item.product.unit }}</small>
+                  </td>
+                  <td style="text-align: center; font-weight: 600;">{{ item.quantity }}</td>
+                  <td style="text-align: right;">${{ "%.2f"|format(item.unit_price) }}</td>
+                  <td style="text-align: right; font-weight: 600;">${{ "%.2f"|format(item.quantity * item.unit_price) }}</td>
+                </tr>
+              {% endfor %}
+              <tr class="total-row">
+                <td colspan="3"><strong>TOTALE ORDINE</strong></td>
+                <td style="text-align: right;"><strong>${{ "%.2f"|format(order.total()) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon">
+      <i class="fas fa-clipboard-list"></i>
+    </div>
+    <div class="empty-title">Nessun Ordine Presente</div>
+    <div class="empty-subtitle">Inizia creando il tuo primo ordine ai fornitori</div>
+    <a href="{{ url_for('orders_bp.create_order') }}" class="empty-action">
+      <i class="fas fa-plus me-2"></i>Crea Primo Ordine
+    </a>
+  </div>
+{% endif %}
+
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const orderCards = document.querySelectorAll('.order-card');
+  
+  orderCards.forEach(card => {
+    const supplierName = card.dataset.supplier;
+    const productNames = Array.from(card.querySelectorAll('.product-name')).map(el => el.textContent.toLowerCase());
+    const isVisible = supplierName.includes(searchTerm) || productNames.some(name => name.includes(searchTerm));
+    
+    card.style.display = isVisible ? 'block' : 'none';
+  });
+});
+
+// Filter functionality
+function filterOrders(period) {
+  const orderCards = document.querySelectorAll('.order-card');
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+  
+  // Update active button
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  orderCards.forEach(card => {
+    const orderDate = new Date(card.dataset.date);
+    let isVisible = true;
+    
+    switch(period) {
+      case 'today':
+        isVisible = orderDate >= today;
+        break;
+      case 'week':
+        isVisible = orderDate >= weekAgo;
+        break;
+      case 'month':
+        isVisible = orderDate >= monthAgo;
+        break;
+      case 'all':
+      default:
+        isVisible = true;
+    }
+    
+    card.style.display = isVisible ? 'block' : 'none';
+  });
+}
+
+// Add touch feedback for mobile
+if (window.innerWidth <= 767) {
+  document.querySelectorAll('.order-card, .product-item').forEach(card => {
+    card.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(0.98)';
+    });
+    
+    card.addEventListener('touchend', function() {
+      this.style.transform = '';
+    });
+  });
+}
+
+console.log('Recent orders page loaded with {{ orders|length }} orders');
+</script>
 {% endblock %}

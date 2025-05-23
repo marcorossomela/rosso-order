@@ -1,0 +1,85 @@
+-- Migrazione per aggiungere tabella locations e aggiornare orders
+
+-- 1. Crea tabella locations
+CREATE TABLE IF NOT EXISTS locations (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (gen_random_uuid()::text),
+    name VARCHAR(100) NOT NULL,
+    address VARCHAR(200) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Aggiungi indice per performance
+CREATE INDEX IF NOT EXISTS idx_locations_city ON locations(city);
+CREATE INDEX IF NOT EXISTS idx_locations_name_city ON locations(name, city);
+
+-- 3. Aggiungi campo location_id alla tabella orders (se non esiste già)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'orders' AND column_name = 'location_id'
+    ) THEN
+        ALTER TABLE orders ADD COLUMN location_id VARCHAR(36);
+        ALTER TABLE orders ADD CONSTRAINT fk_orders_location_id 
+            FOREIGN KEY (location_id) REFERENCES locations(id);
+    END IF;
+END $$;
+
+-- 4. Assicurati che il campo notes esista negli orders (probabilmente esiste già)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'orders' AND column_name = 'notes'
+    ) THEN
+        ALTER TABLE orders ADD COLUMN notes TEXT;
+    END IF;
+END $$;
+
+-- 5. Assicurati che il campo price esista nei products (probabilmente esiste già)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'price'
+    ) THEN
+        ALTER TABLE products ADD COLUMN price DECIMAL(10,2) DEFAULT 0.00;
+    END IF;
+END $$;
+
+-- 6. Assicurati che i campi product_name e product_unit esistano in order_items
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'order_items' AND column_name = 'product_name'
+    ) THEN
+        ALTER TABLE order_items ADD COLUMN product_name VARCHAR(120);
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'order_items' AND column_name = 'product_unit'
+    ) THEN
+        ALTER TABLE order_items ADD COLUMN product_unit VARCHAR(20);
+    END IF;
+END $$;
+
+-- 7. Aggiungi alcuni dati di esempio per le location (opzionale)
+-- Puoi decommentare queste righe per avere dati di partenza
+/*
+INSERT INTO locations (name, address, city) VALUES
+('Downtown', '123 Main Street, Toronto ON M5V 3A8', 'Toronto'),
+('North York', '456 Yonge Street, North York ON M2N 6K1', 'Toronto'),
+('Scarborough', '789 Kingston Road, Scarborough ON M1M 1P2', 'Toronto'),
+('South Beach', '321 Ocean Drive, Miami FL 33139', 'Miami'),
+('Brickell', '654 Biscayne Blvd, Miami FL 33131', 'Miami')
+ON CONFLICT DO NOTHING;
+*/
+
+-- 8. Commenti per il DBA
+COMMENT ON TABLE locations IS 'Location specifiche per città - usate negli ordini per indirizzo preciso';
+COMMENT ON COLUMN orders.location_id IS 'Reference alla location specifica per questo ordine';
+COMMENT ON COLUMN orders.notes IS 'Note speciali per il fornitore incluse nell email';
+COMMENT ON COLUMN products.price IS 'Prezzo di default del prodotto usato negli ordini';

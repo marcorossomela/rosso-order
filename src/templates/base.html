@@ -24,12 +24,18 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <style>
+    /* ===== STILI BASE ===== */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
       background: #f0f2f5;
       margin: 0;
       padding-bottom: 70px;
       touch-action: manipulation;
+      font-display: swap;
     }
 
     nav {
@@ -65,39 +71,6 @@
       color: white;
     }
 
-    @media(max-width: 768px) {
-      nav {
-        display: none;
-      }
-
-      .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: #e74c3c;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 8px 0;
-        border-top-left-radius: 16px;
-        border-top-right-radius: 16px;
-        box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
-        z-index: 999;
-      }
-
-      .bottom-nav a {
-        color: white;
-        font-size: 20px;
-        text-decoration: none;
-      }
-
-      .bottom-nav a.active,
-      .bottom-nav a:hover {
-        color: #cce5ff;
-      }
-    }
-
     .logo-container {
       text-align: center;
       margin: 20px 0;
@@ -128,6 +101,297 @@
     .flash.success { background-color: #d4edda; color: #155724; }
     .flash.warning { background-color: #fff3cd; color: #856404; }
     .flash.danger  { background-color: #f8d7da; color: #721c24; }
+
+    /* ===== MOBILE OPTIMIZATIONS ===== */
+    
+    /* Mobile Navigation */
+    @media(max-width: 768px) {
+      nav {
+        display: none;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #e74c3c;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 8px 0;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
+        z-index: 999;
+        transition: transform 0.3s ease;
+      }
+
+      .bottom-nav a {
+        color: white;
+        font-size: 20px;
+        text-decoration: none;
+        padding: 12px;
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .bottom-nav a.active,
+      .bottom-nav a:hover {
+        color: #cce5ff;
+      }
+
+      /* Hide bottom nav when keyboard is open */
+      .keyboard-open .bottom-nav {
+        transform: translateY(100%);
+      }
+    }
+
+    /* Mobile Container */
+    @media screen and (max-width: 767px) {
+      .container {
+        margin: 10px;
+        width: calc(100% - 20px);
+        max-width: none;
+        padding: 15px;
+        margin-bottom: 90px; /* Space for bottom nav */
+      }
+
+      .logo-container {
+        margin: 10px 0;
+      }
+
+      .logo-container img {
+        max-width: 180px;
+      }
+
+      /* Reduce spacing on mobile */
+      .mb-4 { margin-bottom: 1rem !important; }
+      .mb-3 { margin-bottom: 0.75rem !important; }
+      .p-4 { padding: 1rem !important; }
+      .p-3 { padding: 0.75rem !important; }
+    }
+
+    /* Form Controls Mobile */
+    @media screen and (max-width: 767px) {
+      input[type="text"],
+      input[type="email"], 
+      input[type="number"],
+      input[type="password"],
+      select,
+      textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+      }
+
+      input:focus, select:focus, textarea:focus {
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+        outline: none;
+      }
+
+      .btn, button, a {
+        min-height: 44px; /* iOS recommended touch target */
+        min-width: 44px;
+      }
+    }
+
+    /* Modal Mobile */
+    @media screen and (max-width: 767px) {
+      .modal-dialog {
+        margin: 0;
+        max-width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+      }
+
+      .modal-content {
+        border-radius: 20px 20px 0 0;
+        margin-top: auto;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+    }
+
+    /* Loading States */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .loading::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #e74c3c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Pull to Refresh */
+    .pull-refresh-hint {
+      text-align: center;
+      padding: 10px;
+      color: #6c757d;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    @keyframes pullToRefresh {
+      0% { transform: translateY(-100px); }
+      100% { transform: translateY(0); }
+    }
+
+    .pull-refresh-active {
+      animation: pullToRefresh 0.3s ease-out;
+    }
+
+    /* Touch Feedback */
+    .touch-feedback {
+      transition: transform 0.1s ease;
+    }
+
+    .touch-feedback:active {
+      transform: scale(0.98);
+    }
+
+    /* Smooth Scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Better Focus */
+    @media screen and (max-width: 767px) {
+      *:focus {
+        outline: 3px solid #e74c3c;
+        outline-offset: 2px;
+      }
+    }
+
+    /* Performance */
+    .gpu-accelerated {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
+    /* Reduce Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Hide Scrollbars on Mobile */
+    @media screen and (max-width: 767px) {
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+    }
+
+    /* Safe Area Insets (iPhone X+) */
+    @supports (padding: max(0px)) {
+      .bottom-nav {
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+      }
+    }
+
+    /* Offline Status */
+    .offline-notice {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #dc3545;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      z-index: 9999;
+      font-size: 0.9rem;
+      transform: translateY(-100%);
+      animation: slideDown 0.3s ease-out forwards;
+    }
+
+    @keyframes slideDown {
+      to { transform: translateY(0); }
+    }
+
+    /* Landscape Orientation */
+    @media screen and (max-width: 767px) and (orientation: landscape) {
+      .bottom-nav {
+        padding: 6px 0;
+      }
+
+      .bottom-nav a {
+        font-size: 18px;
+      }
+    }
+
+    /* Device-specific classes */
+    .mobile-device .container {
+      border-radius: 12px;
+    }
+
+    .ios-device input,
+    .ios-device select {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* Select arrow for mobile */
+    @media screen and (max-width: 767px) {
+      select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 40px;
+      }
+    }
+
+    /* Placeholder color */
+    ::placeholder {
+      color: #9ca3af;
+    }
+
+    /* Admin link for mobile */
+    @media screen and (max-width: 767px) {
+      .admin-mobile-link {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #17a2b8;
+        color: white;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        z-index: 1000;
+        text-decoration: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -141,6 +405,9 @@
         <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="nav-link {% if request.endpoint == 'suppliers_bp.manage_suppliers_products' %}active{% endif %}">Fornitori</a>
         <a href="{{ url_for('orders_bp.create_order') }}" class="nav-link {% if request.endpoint == 'orders_bp.create_order' %}active{% endif %}">Nuovo Ordine</a>
         <a href="{{ url_for('orders_bp.recent_orders') }}" class="nav-link {% if request.endpoint == 'orders_bp.recent_orders' %}active{% endif %}">Ordini Recenti</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('locations_bp.manage_locations') }}" class="nav-link {% if 'locations_bp' in request.endpoint %}active{% endif %}">Location</a>
+        {% endif %}
         <a href="{{ url_for('auth_bp.logout') }}" class="nav-link">Logout</a>
       {% else %}
         <a href="{{ url_for('auth_bp.login') }}" class="nav-link">Login</a>
@@ -148,12 +415,24 @@
     </div>
   </nav>
 
+  <!-- Admin Link Mobile (only for admins) -->
+  {% if current_user.is_authenticated and current_user.is_admin %}
+  <a href="{{ url_for('locations_bp.manage_locations') }}" class="admin-mobile-link d-md-none">
+    <i class="fas fa-cog"></i>
+  </a>
+  {% endif %}
+
+  <!-- Pull to Refresh Hint (Mobile Only) -->
+  <div class="pull-refresh-hint d-md-none">
+    <i class="fas fa-arrow-down me-1"></i>Trascina verso il basso per aggiornare
+  </div>
+
   <!-- Navbar Mobile -->
   {% if current_user.is_authenticated %}
   <div class="bottom-nav d-md-none">
     <a href="{{ url_for('auth_bp.dashboard') }}" class="{% if request.endpoint == 'auth_bp.dashboard' %}active{% endif %}"><i class="fas fa-home"></i></a>
-    <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="{% if request.endpoint == 'suppliers_bp.manage_suppliers_products' %}active{% endif %}"><i class="fas fa-user-plus"></i></a>
-    <a href="{{ url_for('orders_bp.create_order') }}" class="{% if request.endpoint == 'orders_bp.create_order' %}active{% endif %}"><i class="fas fa-receipt"></i></a>
+    <a href="{{ url_for('suppliers_bp.manage_suppliers_products') }}" class="{% if request.endpoint == 'suppliers_bp.manage_suppliers_products' %}active{% endif %}"><i class="fas fa-truck"></i></a>
+    <a href="{{ url_for('orders_bp.create_order') }}" class="{% if request.endpoint == 'orders_bp.create_order' %}active{% endif %}"><i class="fas fa-plus-circle"></i></a>
     <a href="{{ url_for('orders_bp.recent_orders') }}" class="{% if request.endpoint == 'orders_bp.recent_orders' %}active{% endif %}"><i class="fas fa-clock"></i></a>
     <a href="{{ url_for('auth_bp.logout') }}"><i class="fas fa-sign-out-alt"></i></a>
   </div>
@@ -175,6 +454,205 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </div>
+
+  <!-- Mobile JavaScript Optimizations -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Detect device type
+      const isMobile = window.innerWidth <= 767;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+      
+      if (isMobile) {
+        document.body.classList.add('mobile-device');
+        if (isIOS) document.body.classList.add('ios-device');
+        if (isAndroid) document.body.classList.add('android-device');
+      }
+
+      // ===== PREVENT ZOOM ON INPUT FOCUS (iOS) =====
+      if (isMobile && isIOS) {
+        const viewport = document.querySelector('meta[name="viewport"]');
+        const originalContent = viewport.getAttribute('content');
+        
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+          input.addEventListener('focus', function() {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+          });
+          
+          input.addEventListener('blur', function() {
+            viewport.setAttribute('content', originalContent);
+          });
+        });
+      }
+
+      // ===== VIBRATION FEEDBACK =====
+      function vibrate(pattern = [10]) {
+        if ('vibrate' in navigator && isMobile) {
+          navigator.vibrate(pattern);
+        }
+      }
+
+      // Add vibration to important buttons
+      document.querySelectorAll('.btn-danger, .btn-success').forEach(btn => {
+        btn.addEventListener('click', () => vibrate([5]));
+      });
+
+      // ===== PULL TO REFRESH =====
+      if (isMobile) {
+        let startY = 0;
+        let currentY = 0;
+        let pullDistance = 0;
+        let isPulling = false;
+        
+        const refreshThreshold = 100;
+        const maxPullDistance = 150;
+        
+        document.addEventListener('touchstart', function(e) {
+          if (window.scrollY === 0) {
+            startY = e.touches[0].clientY;
+            isPulling = true;
+          }
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', function(e) {
+          if (!isPulling || window.scrollY > 0) return;
+          
+          currentY = e.touches[0].clientY;
+          pullDistance = Math.min(currentY - startY, maxPullDistance);
+          
+          if (pullDistance > 0) {
+            e.preventDefault();
+            
+            const hint = document.querySelector('.pull-refresh-hint');
+            if (hint) {
+              hint.style.transform = `translateY(${pullDistance * 0.5}px)`;
+              hint.style.opacity = Math.min(pullDistance / refreshThreshold, 1);
+              
+              if (pullDistance > refreshThreshold) {
+                hint.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Rilascia per aggiornare';
+                hint.style.color = '#28a745';
+                vibrate([10]);
+              } else {
+                hint.innerHTML = '<i class="fas fa-arrow-down me-1"></i>Trascina per aggiornare';
+                hint.style.color = '#6c757d';
+              }
+            }
+          }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', function() {
+          if (!isPulling) return;
+          
+          const hint = document.querySelector('.pull-refresh-hint');
+          if (hint) {
+            hint.style.transform = '';
+            hint.style.opacity = '';
+          }
+          
+          if (pullDistance > refreshThreshold) {
+            vibrate([20]);
+            window.location.reload();
+          }
+          
+          // Reset
+          isPulling = false;
+          startY = 0;
+          pullDistance = 0;
+        });
+      }
+
+      // ===== TOUCH FEEDBACK =====
+      if (isMobile) {
+        document.querySelectorAll('.container, .btn, .card, .list-group-item').forEach(element => {
+          element.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.98)';
+            this.style.transition = 'transform 0.1s ease';
+          }, { passive: true });
+          
+          element.addEventListener('touchend', function() {
+            this.style.transform = '';
+            setTimeout(() => {
+              this.style.transition = '';
+            }, 100);
+          }, { passive: true });
+          
+          element.addEventListener('touchcancel', function() {
+            this.style.transform = '';
+            this.style.transition = '';
+          }, { passive: true });
+        });
+      }
+
+      // ===== SMART KEYBOARD HANDLING =====
+      if (isMobile) {
+        let initialViewportHeight = window.innerHeight;
+        
+        window.addEventListener('resize', function() {
+          const currentHeight = window.innerHeight;
+          const heightDifference = initialViewportHeight - currentHeight;
+          
+          if (heightDifference > 150) {
+            document.body.classList.add('keyboard-open');
+          } else {
+            document.body.classList.remove('keyboard-open');
+          }
+        });
+
+        // Auto-resize textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+          textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+          });
+        });
+      }
+
+      // ===== LOADING STATES =====
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+          const submitBtn = this.querySelector('button[type="submit"]');
+          if (submitBtn && !submitBtn.disabled) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio...';
+            
+            // Re-enable after 10 seconds (safety)
+            setTimeout(() => {
+              submitBtn.disabled = false;
+              submitBtn.classList.remove('loading');
+              submitBtn.innerHTML = originalText;
+            }, 10000);
+          }
+        });
+      });
+
+      // ===== OFFLINE DETECTION =====
+      function updateOnlineStatus() {
+        const isOnline = navigator.onLine;
+        document.body.classList.toggle('offline', !isOnline);
+        
+        if (!isOnline) {
+          const notice = document.createElement('div');
+          notice.className = 'offline-notice';
+          notice.innerHTML = '<i class="fas fa-wifi me-2"></i>Connessione assente';
+          document.body.appendChild(notice);
+          
+          setTimeout(() => {
+            if (document.body.contains(notice)) {
+              document.body.removeChild(notice);
+            }
+          }, 3000);
+        }
+      }
+      
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+
+      console.log('Mobile optimizations loaded for:', isMobile ? 'Mobile' : 'Desktop');
+    });
+  </script>
 
 </body>
 </html>

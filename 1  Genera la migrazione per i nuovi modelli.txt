@@ -1,0 +1,11 @@
+# 1. Genera la migrazione per i nuovi modelli
+flask db migrate -m "Add locations table and update products with price and orders with notes"
+
+# 2. Applica la migrazione al database
+flask db upgrade
+
+# 3. (Opzionale) Se hai problemi, puoi vedere lo stato delle migrazioni
+flask db current
+
+# 4. (Opzionale) Vedere la cronologia delle migrazioni
+flask db history

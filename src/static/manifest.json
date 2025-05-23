@@ -1,20 +1,51 @@
 {
-  "name": "Rossopomodoro Orders",
-  "short_name": "Ordini",
+  "name": "Rossopomodoro Orders - Sistema Gestione Ordini",
+  "short_name": "Rossopomodoro",
+  "description": "Sistema di gestione ordini per ristoranti Rossopomodoro",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#e74c3c",
+  "lang": "it",
+  "categories": ["business", "productivity", "food"],
   "icons": [
     {
       "src": "/static/images/icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "/static/images/icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuovo Ordine",
+      "short_name": "Ordine",
+      "description": "Crea un nuovo ordine velocemente",
+      "url": "/orders/create"
+    },
+    {
+      "name": "Fornitori",
+      "short_name": "Fornitori", 
+      "description": "Gestisci i tuoi fornitori",
+      "url": "/suppliers/suppliers-products"
+    },
+    {
+      "name": "Ordini Recenti",
+      "short_name": "Recenti",
+      "description": "Visualizza ordini recenti", 
+      "url": "/orders/recent-orders"
+    }
+  ],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }
