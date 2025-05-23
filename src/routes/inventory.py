@@ -1,11 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
 from datetime import datetime
 from src.extensions import db
 from src.models.inventory import InventoryItem, InventoryMeta
 from src.models.supplier import Supplier
 from src.models.product import Product
-from src.models.order import Order
+import io
+import pandas as pd
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 inventory_bp = Blueprint('inventory_bp', __name__)
 
@@ -14,9 +17,13 @@ inventory_bp = Blueprint('inventory_bp', __name__)
 def view_inventory():
     selected_month = request.args.get('month') or datetime.now().strftime('%Y-%m')
 
+    # Elenco mesi disponibili per il selettore
+    months = db.session.query(InventoryItem.month).distinct().order_by(InventoryItem.month.desc()).all()
+    months = [m[0] for m in months] if months else [selected_month]
+
     # Meta info
     if current_user.is_admin:
-        meta = InventoryMeta.query.filter_by(month=selected_month).first()
+        meta = InventoryMeta.query.filter_by(month=selected_month, location=current_user.location).first()
     else:
         meta = InventoryMeta.query.filter_by(user_id=current_user.id, month=selected_month).first()
 
@@ -24,9 +31,10 @@ def view_inventory():
         meta = InventoryMeta(
             user_id=current_user.id,
             month=selected_month,
+            location=current_user.location,
             previous_inventory=0,
             credit_notes=0,
-            sales=0
+            monthly_sales=0
         )
         db.session.add(meta)
         db.session.commit()
@@ -35,7 +43,7 @@ def view_inventory():
     if request.method == 'POST':
         meta.previous_inventory = float(request.form.get('previous_inventory', 0))
         meta.credit_notes = float(request.form.get('credit_notes', 0))
-        meta.sales = float(request.form.get('sales', 0))
+        meta.monthly_sales = float(request.form.get('monthly_sales', 0))
         db.session.commit()
         flash("Dati inventario aggiornati.", "success")
         return redirect(url_for('inventory_bp.view_inventory', month=selected_month))
@@ -51,7 +59,11 @@ def view_inventory():
 
     items = []
     for p in products:
-        item_query = InventoryItem.query.filter_by(month=selected_month, product_id=p.id)
+        item_query = InventoryItem.query.filter_by(
+            month=selected_month,
+            product_name=p.name,
+            supplier_name=p.supplier.name
+        )
         if not current_user.is_admin:
             item_query = item_query.filter_by(user_id=current_user.id)
         item = item_query.first()
@@ -60,13 +72,15 @@ def view_inventory():
             item = InventoryItem(
                 user_id=current_user.id,
                 month=selected_month,
-                product_id=p.id,
+                product_name=p.name,
+                supplier_name=p.supplier.name,
                 quantity=0,
-                unit_price=0
+                unit_price=0,
+                location=current_user.location
             )
             db.session.add(item)
             db.session.commit()
-        items.append((p, item))
+        items.append(item)
 
     # Ottieni le location uniche dai fornitori (solo per admin)
     locations = []
@@ -76,9 +90,10 @@ def view_inventory():
     return render_template(
         'inventory.html',
         month=selected_month,
-        meta=meta,
-        items=items,
-        locations=locations  # passato al template
+        months=months,
+        inventory_meta=meta,
+        inventory_items=items,
+        locations=locations
     )
 
 
@@ -88,18 +103,19 @@ def update_inventory():
     selected_month = request.form.get('month')
     for key in request.form:
         if key.startswith('qty_'):
-            product_id = key.replace('qty_', '')
-            item_query = InventoryItem.query.filter_by(month=selected_month, product_id=product_id)
+            name = key.replace('qty_', '')
+            item_query = InventoryItem.query.filter_by(month=selected_month, product_name=name)
             if not current_user.is_admin:
                 item_query = item_query.filter_by(user_id=current_user.id)
             item = item_query.first()
 
             if item:
                 item.quantity = float(request.form.get(key, 0))
-                item.unit_price = float(request.form.get(f'price_{product_id}', 0))
+                item.unit_price = float(request.form.get(f'price_{name}', 0))
     db.session.commit()
     flash("Inventario aggiornato.", "success")
     return redirect(url_for('inventory_bp.view_inventory', month=selected_month))
+
 
 @inventory_bp.route('/inventory/export/csv')
 @login_required
@@ -109,20 +125,18 @@ def export_inventory_csv():
 
     query = db.session.query(
         InventoryItem.month,
-        Product.name.label('product_name'),
+        InventoryItem.product_name,
         InventoryItem.quantity,
         InventoryItem.unit_price,
         (InventoryItem.quantity * InventoryItem.unit_price).label('total'),
-        Supplier.name.label('supplier_name'),
-        Supplier.location
-    ).join(Product, Product.id == InventoryItem.product_id)\
-     .join(Supplier, Supplier.id == Product.supplier_id)\
-     .filter(InventoryItem.month == selected_month)
+        InventoryItem.supplier_name,
+        InventoryItem.location
+    ).filter(InventoryItem.month == selected_month)
 
     if current_user.is_admin and selected_location:
-        query = query.filter(Supplier.location == selected_location)
+        query = query.filter(InventoryItem.location == selected_location)
     elif not current_user.is_admin:
-        query = query.filter(Supplier.location == current_user.location)
+        query = query.filter(InventoryItem.location == current_user.location)
 
     df = pd.read_sql(query.statement, db.session.bind)
 
@@ -138,6 +152,7 @@ def export_inventory_csv():
         download_name=f'inventory_{location_name}_{selected_month}.csv'
     )
 
+
 @inventory_bp.route('/inventory/export/pdf')
 @login_required
 def export_inventory_pdf():
@@ -145,20 +160,18 @@ def export_inventory_pdf():
     selected_location = request.args.get('location')
 
     query = db.session.query(
-        Product.name,
+        InventoryItem.product_name,
         InventoryItem.quantity,
         InventoryItem.unit_price,
         (InventoryItem.quantity * InventoryItem.unit_price).label('total'),
-        Supplier.name.label('supplier'),
-        Supplier.location
-    ).join(Product, Product.id == InventoryItem.product_id)\
-     .join(Supplier, Supplier.id == Product.supplier_id)\
-     .filter(InventoryItem.month == selected_month)
+        InventoryItem.supplier_name,
+        InventoryItem.location
+    ).filter(InventoryItem.month == selected_month)
 
     if current_user.is_admin and selected_location:
-        query = query.filter(Supplier.location == selected_location)
+        query = query.filter(InventoryItem.location == selected_location)
     elif not current_user.is_admin:
-        query = query.filter(Supplier.location == current_user.location)
+        query = query.filter(InventoryItem.location == current_user.location)
 
     results = query.all()
 
@@ -173,7 +186,7 @@ def export_inventory_pdf():
 
     y = height - 80
     for item in results:
-        line = f"{item.name} ({item.supplier}, {item.location}): Qty={item.quantity}, Price=${item.unit_price}, Total=${item.total}"
+        line = f"{item.product_name} ({item.supplier_name}, {item.location}): Qty={item.quantity}, Price=${item.unit_price}, Total=${item.total}"
         p.drawString(50, y, line)
         y -= 15
         if y < 50:
