@@ -80,7 +80,7 @@ def view_inventory():
             )
             db.session.add(item)
             db.session.commit()
-        items.append(item)
+        items.append((p, item))
 
     # Ottieni le location uniche dai fornitori (solo per admin)
     locations = []
