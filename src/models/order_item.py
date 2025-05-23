@@ -27,9 +27,6 @@ class OrderItem(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     notes = db.Column(db.Text, nullable=True)
     
-    # Relazioni
-    product = db.relationship('Product', backref='order_items')
-    
     def total(self):
         """Calcola il totale per questo item"""
         return round(self.quantity * self.unit_price, 2)
