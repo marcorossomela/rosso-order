@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 from src.extensions import db
-from src.models.order_item import OrderItem
 
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -31,11 +30,11 @@ class Order(db.Model):
     notes = db.Column(db.Text, nullable=True)
     cc_email = db.Column(db.String(255), nullable=True)
     
-    # Relazioni - RIMUOVI IL BACKREF CHE CAUSA CONFLITTO
-    supplier = db.relationship('Supplier', backref='orders')
-    user = db.relationship('User', backref='orders')
-    items = db.relationship('OrderItem', backref='order', cascade='all, delete-orphan')
-    location_detail = db.relationship('Location')  # SENZA BACKREF
+    # Relazioni SENZA backref per evitare conflitti
+    supplier = db.relationship('Supplier', foreign_keys=[supplier_id])
+    user = db.relationship('User', foreign_keys=[user_id])
+    items = db.relationship('OrderItem', cascade='all, delete-orphan')
+    location_detail = db.relationship('Location', foreign_keys=[location_id])
     
     def total(self):
         return sum(item.quantity * item.unit_price for item in self.items)
@@ -54,5 +53,4 @@ class Order(db.Model):
         return None
     
     def __repr__(self):
-        location_name = self.get_location_name()
-        return f'<Order #{self.id} - {self.supplier.name} - {location_name} - ${self.total():.2f}>'
+        location_name = self.get_locatio

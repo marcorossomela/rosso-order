@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from sqlalchemy.dialects.postgresql import UUID  # ✅ RIMESSO!
 from src.extensions import db
 
 class Location(db.Model):
@@ -12,9 +11,14 @@ class Location(db.Model):
     city = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relazioni
-    orders = db.relationship('Order', backref='location_detail', lazy=True)
+    # Relazione SENZA backref per evitare conflitti
+    # Per accedere agli ordini: db.session.query(Order).filter_by(location_id=location.id).all()
 
+    def get_orders(self):
+        """Metodo per ottenere gli ordini di questa location"""
+        from src.models.order import Order
+        return Order.query.filter_by(location_id=self.id).all()
+        
     def __repr__(self):
         return f'<Location {self.name} - {self.city}>'
 
