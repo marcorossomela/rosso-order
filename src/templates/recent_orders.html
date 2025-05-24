@@ -486,7 +486,7 @@
       <div class="stat-number">
         {% set current_month_orders = [] %}
         {% for order in orders %}
-          {% if order.created_at.month == moment().month if moment else order.created_at.month == 12 %}
+          {% if (moment and order.created_at.month == moment().month) or (not moment and order.created_at.month == 12) %}
             {% set _ = current_month_orders.append(order) %}
           {% endif %}
         {% endfor %}

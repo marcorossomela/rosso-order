@@ -6,7 +6,7 @@ from src.extensions import db
 class Product(db.Model):
     __tablename__ = 'products'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text("gen_random_uuid()"))
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100), nullable=False)
     unit = db.Column(db.String(20), nullable=False)  # kg, litri, pezzi, etc.
     price = db.Column(db.Numeric(10, 2), nullable=True, default=0.00)  # Prezzo di default
