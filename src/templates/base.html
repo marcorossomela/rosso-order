@@ -26,7 +26,8 @@
   <style>
     /* ===== STILI BASE ===== */
     * {
-      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+      /* Rimuovo transparent che causa problemi */
     }
 
     body {
@@ -34,7 +35,7 @@
       background: #f0f2f5;
       margin: 0;
       padding-bottom: 70px;
-      touch-action: manipulation;
+      /* Rimuovo touch-action: manipulation che causa problemi */
       font-display: swap;
     }
 
@@ -137,6 +138,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        /* FIX TOUCH: Aggiungo pointer-events e touch-action */
+        pointer-events: auto;
+        touch-action: auto;
+        cursor: pointer;
       }
 
       .bottom-nav a.active,
@@ -175,18 +180,37 @@
       .p-3 { padding: 0.75rem !important; }
     }
 
-    /* Form Controls Mobile */
+    /* Form Controls Mobile - FIX TOUCH */
     @media screen and (max-width: 767px) {
       input[type="text"],
       input[type="email"], 
       input[type="number"],
       input[type="password"],
       select,
-      textarea {
+      textarea,
+      button,
+      .btn {
         font-size: 16px !important; /* Prevents zoom on iOS */
         padding: 12px 16px;
         border-radius: 12px;
         border: 2px solid #e9ecef;
+        /* FIX TOUCH: Assicuro che siano cliccabili */
+        pointer-events: auto;
+        touch-action: manipulation;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      /* FIX per input text che devono essere selezionabili */
+      input[type="text"],
+      input[type="email"], 
+      input[type="number"],
+      input[type="password"],
+      textarea {
+        -webkit-user-select: auto;
+        user-select: auto;
+        cursor: text;
       }
 
       input:focus, select:focus, textarea:focus {
@@ -263,13 +287,13 @@
       animation: pullToRefresh 0.3s ease-out;
     }
 
-    /* Touch Feedback */
+    /* Touch Feedback - SEMPLIFICATO per evitare problemi */
     .touch-feedback {
-      transition: transform 0.1s ease;
+      transition: opacity 0.1s ease;
     }
 
     .touch-feedback:active {
-      transform: scale(0.98);
+      opacity: 0.8;
     }
 
     /* Smooth Scrolling */
@@ -390,6 +414,9 @@
         box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
         z-index: 1000;
         text-decoration: none;
+        /* FIX TOUCH */
+        pointer-events: auto;
+        touch-action: manipulation;
       }
     }
   </style>
@@ -497,88 +524,21 @@
         btn.addEventListener('click', () => vibrate([5]));
       });
 
-      // ===== PULL TO REFRESH =====
+      // ===== TOUCH FEEDBACK MIGLIORATO =====
       if (isMobile) {
-        let startY = 0;
-        let currentY = 0;
-        let pullDistance = 0;
-        let isPulling = false;
-        
-        const refreshThreshold = 100;
-        const maxPullDistance = 150;
-        
-        document.addEventListener('touchstart', function(e) {
-          if (window.scrollY === 0) {
-            startY = e.touches[0].clientY;
-            isPulling = true;
-          }
-        }, { passive: true });
-        
-        document.addEventListener('touchmove', function(e) {
-          if (!isPulling || window.scrollY > 0) return;
-          
-          currentY = e.touches[0].clientY;
-          pullDistance = Math.min(currentY - startY, maxPullDistance);
-          
-          if (pullDistance > 0) {
-            e.preventDefault();
-            
-            const hint = document.querySelector('.pull-refresh-hint');
-            if (hint) {
-              hint.style.transform = `translateY(${pullDistance * 0.5}px)`;
-              hint.style.opacity = Math.min(pullDistance / refreshThreshold, 1);
-              
-              if (pullDistance > refreshThreshold) {
-                hint.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Rilascia per aggiornare';
-                hint.style.color = '#28a745';
-                vibrate([10]);
-              } else {
-                hint.innerHTML = '<i class="fas fa-arrow-down me-1"></i>Trascina per aggiornare';
-                hint.style.color = '#6c757d';
-              }
-            }
-          }
-        }, { passive: false });
-        
-        document.addEventListener('touchend', function() {
-          if (!isPulling) return;
-          
-          const hint = document.querySelector('.pull-refresh-hint');
-          if (hint) {
-            hint.style.transform = '';
-            hint.style.opacity = '';
-          }
-          
-          if (pullDistance > refreshThreshold) {
-            vibrate([20]);
-            window.location.reload();
-          }
-          
-          // Reset
-          isPulling = false;
-          startY = 0;
-          pullDistance = 0;
-        });
-      }
-
-      // ===== TOUCH FEEDBACK =====
-      if (isMobile) {
-        document.querySelectorAll('.container, .btn, .card, .list-group-item').forEach(element => {
-          element.addEventListener('touchstart', function() {
-            this.style.transform = 'scale(0.98)';
-            this.style.transition = 'transform 0.1s ease';
+        // Rimuovo il touch feedback problematico e uso solo eventi semplici
+        document.querySelectorAll('a, button, .btn').forEach(element => {
+          element.addEventListener('touchstart', function(e) {
+            // Solo un leggero feedback visivo
+            this.style.opacity = '0.8';
           }, { passive: true });
           
-          element.addEventListener('touchend', function() {
-            this.style.transform = '';
-            setTimeout(() => {
-              this.style.transition = '';
-            }, 100);
+          element.addEventListener('touchend', function(e) {
+            this.style.opacity = '';
           }, { passive: true });
           
-          element.addEventListener('touchcancel', function() {
-            this.style.transform = '';
-            this.style.transition = '';
+          element.addEventListener('touchcancel', function(e) {
+            this.style.opacity = '';
           }, { passive: true });
         });
       }

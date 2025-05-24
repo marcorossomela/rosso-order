@@ -39,10 +39,10 @@
     }
   }
 
-  /* Stats compatti */
+  /* Stats compatti - SOLO 2 CARDS */
   .stats-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     margin-bottom: 25px;
   }
@@ -288,7 +288,7 @@
   <p>Sistema di gestione ordini Rossopomodoro</p>
 </div>
 
-<!-- Statistiche Rapide -->
+<!-- Statistiche Rapide - SOLO 2 CARDS -->
 <div class="stats-row">
   <div class="stat-card">
     <div class="stat-number">{{ suppliers|length }}</div>
@@ -303,10 +303,6 @@
       {{ total_products }}
     </div>
     <div class="stat-label">Prodotti</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number">{{ current_user.location }}</div>
-    <div class="stat-label">Tua Città</div>
   </div>
 </div>
 

@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from sqlalchemy.dialects.postgresql import UUID
 from src.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -8,7 +7,8 @@ from flask_login import UserMixin
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=db.text("gen_random_uuid()"))
+    # Cambiato da UUID a String per coerenza con gli altri modelli
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     location = db.Column(db.String(50), nullable=False)

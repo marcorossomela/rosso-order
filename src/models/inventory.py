@@ -1,7 +1,6 @@
 from src.extensions import db
 from datetime import datetime
 import uuid
-from sqlalchemy.dialects.postgresql import UUID
 
 class InventoryItem(db.Model):
     __tablename__ = 'inventory_items'
@@ -13,8 +12,9 @@ class InventoryItem(db.Model):
     unit_price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Float, nullable=False, default=0)
     location = db.Column(db.String(50), nullable=False)
+    # Cambiato da UUID a String per coerenza
     user_id = db.Column(
-        UUID(as_uuid=True),
+        db.String(36),
         db.ForeignKey('users.id', name='fk_inventoryitem_user_id'),
         nullable=True
     )
@@ -36,8 +36,9 @@ class InventoryMeta(db.Model):
     credit_notes = db.Column(db.Float, default=0)
     monthly_sales = db.Column(db.Float, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Cambiato da UUID a String per coerenza
     user_id = db.Column(
-        UUID(as_uuid=True),
+        db.String(36),
         db.ForeignKey('users.id', name='fk_inventorymeta_user_id'),
         nullable=True
     )

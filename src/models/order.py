@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from sqlalchemy.dialects.postgresql import UUID
 from src.extensions import db
 
 class Order(db.Model):
@@ -12,8 +11,9 @@ class Order(db.Model):
         db.ForeignKey('suppliers.id', name='fk_orders_supplier_id'),
         nullable=False
     )
+    # Cambiato da UUID a String per coerenza
     user_id = db.Column(
-        UUID(as_uuid=True),
+        db.String(36),
         db.ForeignKey('users.id', name='fk_orders_user_id'),
         nullable=True
     )
@@ -53,4 +53,5 @@ class Order(db.Model):
         return None
     
     def __repr__(self):
-        location_name = self.get_locatio
+        location_name = self.get_location_name()
+        return f'<Order {self.id} - {location_name} - ${self.total():.2f}>'
