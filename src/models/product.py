@@ -11,7 +11,7 @@ class Product(db.Model):
     unit = db.Column(db.String(20), nullable=False)  # kg, litri, pezzi, etc.
     price = db.Column(db.Numeric(10, 2), nullable=True, default=0.00)  # Prezzo di default
     supplier_id = db.Column(UUID(as_uuid=True), db.ForeignKey('suppliers.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Rimosso created_at perché non esiste nella tabella DB
     
     # Relazioni
     order_items = db.relationship('OrderItem', backref='product', lazy=True, cascade='all, delete-orphan')
@@ -25,6 +25,6 @@ class Product(db.Model):
             'name': self.name,
             'unit': self.unit,
             'price': float(self.price) if self.price else 0.00,
-            'supplier_id': str(self.supplier_id),
-            'created_at': self.created_at.isoformat()
+            'supplier_id': str(self.supplier_id)
+            # Rimosso created_at dal to_dict
         }
