@@ -106,8 +106,22 @@ def view_inventory():
     else:
         suppliers = Supplier.query.filter_by(location=current_user.location).all()
 
-    supplier_ids = [s.id for s in suppliers] if suppliers else []
-    products = Product.query.filter(Product.supplier_id.in_(supplier_ids)).all() if supplier_ids else []
+    # FIX: Cast esplicito degli ID supplier a stringa
+    supplier_ids = [str(s.id) for s in suppliers] if suppliers else []
+    
+    # FIX: Query sicura con cast esplicito
+    products = []
+    if supplier_ids:
+        # Usa un approccio più sicuro con filter multipli
+        for supplier_id in supplier_ids:
+            supplier_products = Product.query.filter(Product.supplier_id == supplier_id).all()
+            products.extend(supplier_products)
+    
+    # Alternative: se la query IN continua a dare problemi, usa un loop:
+    # products = []
+    # for supplier in suppliers:
+    #     supplier_products = Product.query.filter_by(supplier_id=str(supplier.id)).all()
+    #     products.extend(supplier_products)
 
     items = []
     for p in products:
@@ -127,11 +141,14 @@ def view_inventory():
         item = item_query.first()
 
         if not item:
-            # Il modello Product usa 'price', non 'unit_price'
-            unit_price = float(p.price) if p.price else 0.0
+            # Il modello Product usa 'price', non 'unit_price' - FIX con cast sicuro
+            try:
+                unit_price = float(p.price) if p.price else 0.0
+            except (TypeError, ValueError):
+                unit_price = 0.0
             
             item = InventoryItem(
-                user_id=current_user.id,
+                user_id=str(current_user.id),  # FIX: Cast esplicito a stringa
                 month=selected_month,
                 product_name=p.name,
                 supplier_name=supplier_name,
@@ -173,7 +190,7 @@ def update_inventory():
         meta = InventoryMeta.query.filter_by(month=selected_month, location=location).first()
     else:
         meta = InventoryMeta.query.filter_by(
-            user_id=current_user.id, 
+            user_id=str(current_user.id),  # FIX: Cast esplicito a stringa
             month=selected_month
         ).first()
     
@@ -187,13 +204,13 @@ def update_inventory():
                 product_name = key[4:]  # Rimuove 'qty_'
                 quantity = float(value) if value else 0
                 
-                # Trova l'item corrispondente
+                # Trova l'item corrispondente con cast sicuro
                 item_query = InventoryItem.query.filter_by(
                     month=selected_month,
                     product_name=product_name
                 )
                 if not current_user.is_admin:
-                    item_query = item_query.filter_by(user_id=current_user.id)
+                    item_query = item_query.filter_by(user_id=str(current_user.id))  # FIX: Cast a stringa
                 
                 item = item_query.first()
                 if item:
@@ -203,13 +220,13 @@ def update_inventory():
                 product_name = key[6:]  # Rimuove 'price_'
                 price = float(value) if value else 0
                 
-                # Trova l'item corrispondente
+                # Trova l'item corrispondente con cast sicuro
                 item_query = InventoryItem.query.filter_by(
                     month=selected_month,
                     product_name=product_name
                 )
                 if not current_user.is_admin:
-                    item_query = item_query.filter_by(user_id=current_user.id)
+                    item_query = item_query.filter_by(user_id=str(current_user.id))  # FIX: Cast a stringa
                 
                 item = item_query.first()
                 if item:

@@ -446,6 +446,17 @@
     font-size: 0.85rem;
     font-weight: 500;
   }
+
+  /* Aggiunta animazione per aggiornamento stats */
+  .stat-number.updating {
+    animation: pulse 0.3s ease-in-out;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
 </style>
 
 <div class="orders-header">
@@ -454,14 +465,14 @@
 </div>
 
 {% if orders %}
-  <!-- Stats Summary -->
+  <!-- Stats Summary - CON ID PER AGGIORNAMENTO DINAMICO -->
   <div class="stats-summary">
     <div class="stat-card">
-      <div class="stat-number">{{ orders|length }}</div>
+      <div class="stat-number" id="totalOrdersCount">{{ orders|length }}</div>
       <div class="stat-label">Ordini Totali</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number">
+      <div class="stat-number" id="totalAmount">
         {% set total_amount = 0 %}
         {% for order in orders %}
           {% set total_amount = total_amount + order.total() %}
@@ -471,7 +482,7 @@
       <div class="stat-label">Valore Totale</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number">
+      <div class="stat-number" id="uniqueSuppliersCount">
         {% set unique_suppliers = [] %}
         {% for order in orders %}
           {% if order.supplier.name not in unique_suppliers %}
@@ -483,10 +494,10 @@
       <div class="stat-label">Fornitori</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number">
+      <div class="stat-number" id="currentMonthCount">
         {% set current_month_orders = [] %}
         {% for order in orders %}
-          {% if (moment and order.created_at.month == moment().month) or (not moment and order.created_at.month == 12) %}
+          {% if order.created_at.month == 12 %}
             {% set _ = current_month_orders.append(order) %}
           {% endif %}
         {% endfor %}
@@ -509,9 +520,13 @@
     </div>
   </div>
 
-  <!-- Orders List -->
+  <!-- Orders List - CON DATA ATTRIBUTES PER CALCOLI -->
   {% for order in orders %}
-    <div class="order-card" data-supplier="{{ order.supplier.name|lower }}" data-date="{{ order.created_at.isoformat() }}">
+    <div class="order-card" 
+         data-supplier="{{ order.supplier.name|lower }}" 
+         data-date="{{ order.created_at.isoformat() }}"
+         data-total="{{ order.total() }}"
+         data-supplier-name="{{ order.supplier.name }}">
       <div class="order-header">
         <div class="order-meta">
           <div class="supplier-info">
@@ -563,7 +578,7 @@
           {% for item in order.items %}
             <div class="product-item">
               <div class="product-name">
-                {{ item.product_name or item.product.name }} ({{ item.product_unit or item.product.unit }})
+                {{ item.product_name or (item.product.name if item.product else 'Prodotto Rimosso') }} ({{ item.product_unit or (item.product.unit if item.product else 'N/A') }})
               </div>
               <div class="product-details">
                 <div class="detail-item">
@@ -597,8 +612,8 @@
               {% for item in order.items %}
                 <tr>
                   <td>
-                    <strong>{{ item.product_name or item.product.name }}</strong><br>
-                    <small class="text-muted">{{ item.product_unit or item.product.unit }}</small>
+                    <strong>{{ item.product_name or (item.product.name if item.product else 'Prodotto Rimosso') }}</strong><br>
+                    <small class="text-muted">{{ item.product_unit or (item.product.unit if item.product else 'N/A') }}</small>
                   </td>
                   <td style="text-align: center; font-weight: 600;">{{ item.quantity }}</td>
                   <td style="text-align: right;">${{ "%.2f"|format(item.unit_price) }}</td>
@@ -630,7 +645,45 @@
 {% endif %}
 
 <script>
-// Search functionality
+// FUNZIONE PER AGGIORNARE LE STATISTICHE DINAMICAMENTE
+function updateStats() {
+  const visibleOrders = document.querySelectorAll('.order-card:not([style*="display: none"])');
+  const uniqueSuppliers = new Set();
+  let totalAmount = 0;
+  let currentMonthCount = 0;
+  const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
+  
+  visibleOrders.forEach(card => {
+    // Calcola totale
+    const orderTotal = parseFloat(card.dataset.total);
+    totalAmount += orderTotal;
+    
+    // Conta fornitori unici
+    const supplierName = card.dataset.supplierName;
+    uniqueSuppliers.add(supplierName);
+    
+    // Conta ordini del mese corrente
+    const orderDate = new Date(card.dataset.date);
+    if (orderDate.getMonth() + 1 === currentMonth) {
+      currentMonthCount++;
+    }
+  });
+  
+  // Aggiorna gli elementi con animazione
+  function updateStatWithAnimation(elementId, newValue) {
+    const element = document.getElementById(elementId);
+    element.classList.add('updating');
+    element.textContent = newValue;
+    setTimeout(() => element.classList.remove('updating'), 300);
+  }
+  
+  updateStatWithAnimation('totalOrdersCount', visibleOrders.length);
+  updateStatWithAnimation('totalAmount', '$' + Math.round(totalAmount));
+  updateStatWithAnimation('uniqueSuppliersCount', uniqueSuppliers.size);
+  updateStatWithAnimation('currentMonthCount', currentMonthCount);
+}
+
+// Search functionality - CON AGGIORNAMENTO STATS
 document.getElementById('searchInput').addEventListener('input', function() {
   const searchTerm = this.value.toLowerCase();
   const orderCards = document.querySelectorAll('.order-card');
@@ -642,9 +695,12 @@ document.getElementById('searchInput').addEventListener('input', function() {
     
     card.style.display = isVisible ? 'block' : 'none';
   });
+  
+  // Aggiorna statistiche dopo il filtro
+  updateStats();
 });
 
-// Filter functionality
+// Filter functionality - CON AGGIORNAMENTO STATS
 function filterOrders(period) {
   const orderCards = document.querySelectorAll('.order-card');
   const now = new Date();
@@ -677,6 +733,9 @@ function filterOrders(period) {
     
     card.style.display = isVisible ? 'block' : 'none';
   });
+  
+  // Aggiorna statistiche dopo il filtro
+  updateStats();
 }
 
 // Add touch feedback for mobile
@@ -692,6 +751,9 @@ if (window.innerWidth <= 767) {
   });
 }
 
-console.log('Recent orders page loaded with {{ orders|length }} orders');
+// Inizializza stats al caricamento
+updateStats();
+
+console.log('Recent orders page loaded with {{ orders|length }} orders - Dynamic stats enabled');
 </script>
 {% endblock %}

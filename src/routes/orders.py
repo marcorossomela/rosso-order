@@ -35,18 +35,36 @@ def create_order():
             flash('Location non valida o non autorizzata.', 'danger')
             return redirect(url_for('orders_bp.create_order'))
 
-        # Raccolta prodotti
+        # Raccolta prodotti - FIX: Usa query diretta invece di relationship
         order_items = []
-        for product in supplier.products:
-            qty = int(request.form.get(f'product_{product.id}', 0))
-            price = float(request.form.get(f'price_{product.id}', product.price or 0))
-            
-            if qty > 0:
-                order_items.append({
-                    'product': product,
-                    'quantity': qty,
-                    'price': price
-                })
+        products = Product.query.filter_by(supplier_id=supplier_id).all()
+        
+        for product in products:
+            try:
+                # FIX: Cast esplicito del product ID come stringa
+                product_key = f'product_{str(product.id)}'
+                price_key = f'price_{str(product.id)}'
+                
+                qty = int(request.form.get(product_key, 0))
+                
+                # FIX: Gestione sicura del prezzo
+                price_input = request.form.get(price_key, '')
+                if price_input:
+                    price = float(price_input)
+                else:
+                    # Accesso sicuro al prezzo del prodotto
+                    price = float(product.price) if product.price else 0.0
+                
+                if qty > 0:
+                    order_items.append({
+                        'product': product,
+                        'quantity': qty,
+                        'price': price
+                    })
+                    
+            except (ValueError, TypeError) as e:
+                flash(f"Errore nei dati del prodotto {product.name}: {e}", 'danger')
+                return redirect(url_for('orders_bp.create_order'))
 
         if not order_items:
             flash("Nessun prodotto selezionato.", 'warning')
@@ -55,7 +73,7 @@ def create_order():
         # Crea ordine con i nuovi campi
         new_order = Order(
             supplier_id=supplier_id,
-            user_id=current_user.id,
+            user_id=str(current_user.id),  # FIX: Cast esplicito a stringa
             location=current_user.location,  # Città (compatibilità)
             location_id=location_id,  # NUOVO: Location specifica
             notes=notes,  # NUOVO: Note
@@ -69,8 +87,8 @@ def create_order():
             # Aggiunge gli OrderItem con dati salvati per storico
             for item in order_items:
                 order_item = OrderItem(
-                    order_id=new_order.id,
-                    product_id=item['product'].id,
+                    order_id=str(new_order.id),  # FIX: Cast esplicito a stringa
+                    product_id=str(item['product'].id),  # FIX: Cast esplicito a stringa
                     product_name=item['product'].name,  # Salva per storico
                     product_unit=item['product'].unit,  # Salva per storico
                     quantity=item['quantity'],
