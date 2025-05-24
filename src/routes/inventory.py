@@ -106,28 +106,37 @@ def view_inventory():
     else:
         suppliers = Supplier.query.filter_by(location=current_user.location).all()
 
-    supplier_ids = [s.id for s in suppliers]
-    products = Product.query.filter(Product.supplier_id.in_(supplier_ids)).all()
+    supplier_ids = [s.id for s in suppliers] if suppliers else []
+    products = Product.query.filter(Product.supplier_id.in_(supplier_ids)).all() if supplier_ids else []
 
     items = []
     for p in products:
+        # Gestione sicura del supplier name
+        try:
+            supplier_name = p.supplier.name if p.supplier else "Fornitore Sconosciuto"
+        except AttributeError:
+            supplier_name = "Fornitore Sconosciuto"
+            
         item_query = InventoryItem.query.filter_by(
             month=selected_month,
             product_name=p.name,
-            supplier_name=p.supplier.name
+            supplier_name=supplier_name
         )
         if not current_user.is_admin:
             item_query = item_query.filter_by(user_id=current_user.id)
         item = item_query.first()
 
         if not item:
+            # Il modello Product usa 'price', non 'unit_price'
+            unit_price = float(p.price) if p.price else 0.0
+            
             item = InventoryItem(
                 user_id=current_user.id,
                 month=selected_month,
                 product_name=p.name,
-                supplier_name=p.supplier.name,
+                supplier_name=supplier_name,
                 quantity=0,
-                unit_price=p.unit_price or 0,
+                unit_price=unit_price,
                 location=location
             )
             db.session.add(item)
@@ -148,4 +157,166 @@ def view_inventory():
         inventory_items=items,
         locations=locations,
         total_inventory=total_inventory
+    )
+
+@inventory_bp.route('/update', methods=['POST'])
+@login_required
+def update_inventory():
+    """Aggiorna l'inventario"""
+    selected_month = request.form.get('month', datetime.now().strftime('%Y-%m'))
+    credit_notes = float(request.form.get('credit_notes', 0))
+    monthly_sales = float(request.form.get('monthly_sales', 0))
+
+    # Aggiorna meta
+    if current_user.is_admin:
+        location = request.args.get('admin_location') or current_user.location
+        meta = InventoryMeta.query.filter_by(month=selected_month, location=location).first()
+    else:
+        meta = InventoryMeta.query.filter_by(
+            user_id=current_user.id, 
+            month=selected_month
+        ).first()
+    
+    if meta:
+        meta.credit_notes = credit_notes
+        meta.monthly_sales = monthly_sales
+        
+        # Aggiorna quantità e prezzi dei singoli prodotti
+        for key, value in request.form.items():
+            if key.startswith('qty_'):
+                product_name = key[4:]  # Rimuove 'qty_'
+                quantity = float(value) if value else 0
+                
+                # Trova l'item corrispondente
+                item_query = InventoryItem.query.filter_by(
+                    month=selected_month,
+                    product_name=product_name
+                )
+                if not current_user.is_admin:
+                    item_query = item_query.filter_by(user_id=current_user.id)
+                
+                item = item_query.first()
+                if item:
+                    item.quantity = quantity
+            
+            elif key.startswith('price_'):
+                product_name = key[6:]  # Rimuove 'price_'
+                price = float(value) if value else 0
+                
+                # Trova l'item corrispondente
+                item_query = InventoryItem.query.filter_by(
+                    month=selected_month,
+                    product_name=product_name
+                )
+                if not current_user.is_admin:
+                    item_query = item_query.filter_by(user_id=current_user.id)
+                
+                item = item_query.first()
+                if item:
+                    item.unit_price = price
+        
+        db.session.commit()
+        flash('Inventario aggiornato con successo!', 'success')
+    else:
+        flash('Errore nell\'aggiornamento inventario.', 'danger')
+
+    return redirect(url_for('inventory_bp.view_inventory', month=selected_month))
+
+@inventory_bp.route('/export-csv')
+@login_required
+def export_inventory_csv():
+    """Esporta inventario in CSV"""
+    selected_month = request.args.get('month', datetime.now().strftime('%Y-%m'))
+    
+    if current_user.is_admin:
+        location = request.args.get('location', current_user.location)
+    else:
+        location = current_user.location
+    
+    # Ottieni dati inventario
+    items = InventoryItem.query.filter_by(
+        month=selected_month,
+        location=location
+    ).all()
+    
+    if not items:
+        flash('Nessun dato inventario trovato per il mese selezionato.', 'warning')
+        return redirect(url_for('inventory_bp.view_inventory'))
+    
+    # Crea CSV
+    output = io.StringIO()
+    output.write("Prodotto,Fornitore,Quantità,Prezzo Unitario,Totale\n")
+    
+    for item in items:
+        output.write(f"{item.product_name},{item.supplier_name},{item.quantity},{item.unit_price},{item.total()}\n")
+    
+    # Crea response
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'inventario_{selected_month}_{location}.csv'
+    )
+
+@inventory_bp.route('/export-pdf')
+@login_required  
+def export_inventory_pdf():
+    """Esporta inventario in PDF"""
+    selected_month = request.args.get('month', datetime.now().strftime('%Y-%m'))
+    
+    if current_user.is_admin:
+        location = request.args.get('location', current_user.location)
+    else:
+        location = current_user.location
+    
+    # Ottieni dati
+    items = InventoryItem.query.filter_by(
+        month=selected_month,
+        location=location
+    ).all()
+    
+    if not items:
+        flash('Nessun dato inventario trovato.', 'warning')
+        return redirect(url_for('inventory_bp.view_inventory'))
+    
+    # Crea PDF
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    
+    # Header
+    p.drawString(100, 750, f"Inventario {selected_month} - {location}")
+    p.drawString(100, 730, "=" * 50)
+    
+    y = 700
+    total_value = 0
+    
+    for item in items:
+        if y < 100:  # Nuova pagina se necessario
+            p.showPage()
+            y = 750
+            
+        item_total = item.total()
+        total_value += item_total
+        
+        p.drawString(100, y, f"{item.product_name}")
+        p.drawString(300, y, f"{item.supplier_name}")
+        p.drawString(450, y, f"Qty: {item.quantity}")
+        p.drawString(500, y, f"€{item_total:.2f}")
+        y -= 20
+    
+    # Totale finale
+    y -= 20
+    p.drawString(100, y, "=" * 50)
+    y -= 20
+    p.drawString(100, y, f"TOTALE INVENTARIO: €{total_value:.2f}")
+    
+    p.save()
+    buffer.seek(0)
+    
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'inventario_{selected_month}_{location}.pdf'
     )

@@ -48,7 +48,6 @@
     }
   }
 
-  /* Mobile First Search */
   .search-row {
     display: flex;
     flex-direction: column;
@@ -72,7 +71,7 @@
     padding: 12px 15px;
     border: 2px solid #e9ecef;
     border-radius: 12px;
-    font-size: 16px; /* Previene zoom su iOS */
+    font-size: 16px;
   }
 
   .btn {
@@ -88,11 +87,7 @@
     justify-content: center;
     gap: 8px;
     text-align: center;
-    
-    /* Mobile touch optimization */
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    min-height: 44px; /* iOS recommended touch target */
+    min-height: 44px;
   }
 
   .btn-danger {
@@ -107,7 +102,6 @@
     }
   }
 
-  /* MOBILE: Cards ottimizzate */
   .supplier-card {
     background: white;
     border-radius: 15px;
@@ -118,7 +112,6 @@
     transition: all 0.3s ease;
   }
 
-  /* Desktop: Max width e centratura */
   @media (min-width: 768px) {
     .supplier-card {
       max-width: 1200px;
@@ -146,7 +139,6 @@
     margin-bottom: 10px;
   }
 
-  /* Mobile: Stack contact info */
   .supplier-contact {
     color: #6c757d;
     font-size: 0.9rem;
@@ -171,7 +163,6 @@
     }
   }
 
-  /* Mobile: Stack action buttons */
   .supplier-actions {
     margin-top: 15px;
     display: flex;
@@ -192,6 +183,28 @@
     min-height: 40px;
   }
 
+  .btn-outline-primary {
+    background: transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
+  }
+
+  .btn-outline-primary:hover {
+    background: #007bff;
+    color: white;
+  }
+
+  .btn-outline-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+  }
+
+  .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+  }
+
   .products-section {
     padding: 20px;
   }
@@ -206,14 +219,12 @@
     gap: 8px;
   }
 
-  /* Mobile: Single column products */
   .products-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  /* Desktop: Multi-column */
   @media (min-width: 768px) {
     .products-grid {
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -229,8 +240,9 @@
     transition: all 0.3s ease;
   }
 
-  .product-item:active {
-    transform: scale(0.98);
+  .product-item:hover {
+    border-color: #e74c3c;
+    background: white;
   }
 
   .product-name {
@@ -261,7 +273,6 @@
     font-size: 0.85rem;
   }
 
-  /* Mobile: Stack product actions */
   .product-actions {
     display: flex;
     flex-direction: column;
@@ -282,20 +293,43 @@
     min-height: 36px;
   }
 
-  /* Modal mobile optimization */
-  @media (max-width: 767px) {
-    .modal-dialog {
-      margin: 10px;
-      max-width: none;
+  .no-products {
+    text-align: center;
+    color: #6c757d;
+    padding: 30px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #dee2e6;
+    margin: 10px;
+  }
+
+  @media (min-width: 768px) {
+    .no-products {
+      margin: 40px auto;
+      max-width: 600px;
+      padding: 40px;
     }
-    
-    .modal-content {
-      border-radius: 15px;
-    }
-    
-    .modal-body {
-      padding: 20px 15px;
-    }
+  }
+
+  /* Modal fixes */
+  .modal-content {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+  }
+
+  .modal-header {
+    border-bottom: none;
+    padding: 30px 30px 20px;
+  }
+
+  .modal-body {
+    padding: 0 30px 20px;
+  }
+
+  .modal-footer {
+    border-top: none;
+    padding: 20px 30px 30px;
   }
 
   .product-form-row {
@@ -315,36 +349,11 @@
     }
   }
 
-  /* Loading states */
-  .loading {
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  /* Empty states mobile friendly */
-  .no-products {
-    text-align: center;
-    color: #6c757d;
-    padding: 30px 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 2px dashed #dee2e6;
-    margin: 10px;
-  }
-
-  @media (min-width: 768px) {
-    .no-products {
-      margin: 40px auto;
-      max-width: 600px;
-      padding: 40px;
-    }
-  }
-
-  /* Floating add button on mobile */
+  /* Floating add button */
   @media (max-width: 767px) {
     .floating-add-btn {
       position: fixed;
-      bottom: 90px; /* Above bottom nav */
+      bottom: 90px;
       right: 20px;
       width: 56px;
       height: 56px;
@@ -361,27 +370,14 @@
     }
     
     .search-row .btn-danger {
-      display: none; /* Hide search button, use floating */
+      display: none;
     }
-  }
-
-  /* Pull to refresh hint */
-  .pull-refresh-hint {
-    text-align: center;
-    padding: 10px;
-    color: #6c757d;
-    font-size: 0.8rem;
   }
 </style>
 
 <div class="suppliers-header">
   <h2><i class="fas fa-truck me-2"></i>Gestione Fornitori</h2>
   <p>I tuoi fornitori e prodotti con prezzi</p>
-</div>
-
-<!-- Pull to refresh hint (mobile only) -->
-<div class="pull-refresh-hint d-md-none">
-  <i class="fas fa-arrow-down me-1"></i>Trascina verso il basso per aggiornare
 </div>
 
 <!-- Search Section -->
@@ -459,7 +455,7 @@
                    class="btn btn-outline-primary btn-xs">
                   <i class="fas fa-edit"></i>Modifica
                 </a>
-                <a href="{{ url_for('suppliers_bp.delete_product', product_id=product.id) }}" 
+                <a href="{{ url_for('suppliers_bp.delete_supplier', supplier_id=supplier.id) }}" 
                    class="btn btn-outline-danger btn-xs"
                    onclick="return confirm('Eliminare {{ product.name }}?')">
                   <i class="fas fa-trash"></i>Elimina
@@ -484,16 +480,16 @@
   </div>
 {% endfor %}
 
-<!-- Modal ottimizzato per mobile -->
-<div class="modal fade" id="addSupplierModal" tabindex="-1">
+<!-- MODAL CORRETTO -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form method="POST" action="{{ url_for('suppliers_bp.manage_suppliers_products') }}">
         <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title">
+          <h5 class="modal-title" id="addSupplierModalLabel">
             <i class="fas fa-plus me-2"></i>Nuovo Fornitore
           </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
@@ -544,7 +540,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
           <button type="submit" class="btn btn-danger">
-            <i class="fas fa-save me-2"></i>Salva
+            <i class="fas fa-save me-2"></i>Salva Fornitore
           </button>
         </div>
       </form>
@@ -588,78 +584,6 @@ function removeRow(button) {
   }
 }
 
-// Mobile optimizations
-document.addEventListener('DOMContentLoaded', function() {
-  // Prevent zoom on input focus (iOS)
-  const inputs = document.querySelectorAll('input, select, textarea');
-  inputs.forEach(input => {
-    input.addEventListener('focus', function() {
-      if (window.innerWidth < 768) {
-        document.querySelector('meta[name="viewport"]').setAttribute(
-          'content', 
-          'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'
-        );
-      }
-    });
-    
-    input.addEventListener('blur', function() {
-      if (window.innerWidth < 768) {
-        document.querySelector('meta[name="viewport"]').setAttribute(
-          'content', 
-          'width=device-width, initial-scale=1.0'
-        );
-      }
-    });
-  });
-
-  // Pull to refresh simulation
-  let startY = 0;
-  let currentY = 0;
-  let pullDistance = 0;
-  
-  document.addEventListener('touchstart', function(e) {
-    if (window.scrollY === 0) {
-      startY = e.touches[0].clientY;
-    }
-  });
-  
-  document.addEventListener('touchmove', function(e) {
-    if (window.scrollY === 0 && startY) {
-      currentY = e.touches[0].clientY;
-      pullDistance = currentY - startY;
-      
-      if (pullDistance > 100) {
-        document.querySelector('.pull-refresh-hint').style.color = '#28a745';
-        document.querySelector('.pull-refresh-hint').innerHTML = 
-          '<i class="fas fa-sync-alt me-1"></i>Rilascia per aggiornare';
-      }
-    }
-  });
-  
-  document.addEventListener('touchend', function() {
-    if (pullDistance > 100) {
-      window.location.reload();
-    }
-    
-    // Reset
-    startY = 0;
-    pullDistance = 0;
-    document.querySelector('.pull-refresh-hint').style.color = '#6c757d';
-    document.querySelector('.pull-refresh-hint').innerHTML = 
-      '<i class="fas fa-arrow-down me-1"></i>Trascina verso il basso per aggiornare';
-  });
-});
-
-// Smooth animations for touch interactions
-const cards = document.querySelectorAll('.supplier-card, .product-item');
-cards.forEach(card => {
-  card.addEventListener('touchstart', function() {
-    this.style.transform = 'scale(0.98)';
-  });
-  
-  card.addEventListener('touchend', function() {
-    this.style.transform = 'scale(1)';
-  });
-});
+console.log('Suppliers page loaded - Modal should work now!');
 </script>
 {% endblock %}
